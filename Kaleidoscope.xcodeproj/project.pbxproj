@@ -1,0 +1,310 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		496AC0491CB920B600D91089 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496AC0481CB920B600D91089 /* AppDelegate.swift */; };
+		496AC04B1CB920B600D91089 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496AC04A1CB920B600D91089 /* ViewController.swift */; };
+		496AC04E1CB920B600D91089 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 496AC04C1CB920B600D91089 /* Main.storyboard */; };
+		496AC0511CB920B600D91089 /* Kaleidoscope.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 496AC04F1CB920B600D91089 /* Kaleidoscope.xcdatamodeld */; };
+		496AC0531CB920B600D91089 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 496AC0521CB920B600D91089 /* Assets.xcassets */; };
+		496AC0561CB920B600D91089 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 496AC0541CB920B600D91089 /* LaunchScreen.storyboard */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		496AC0451CB920B500D91089 /* Kaleidoscope.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kaleidoscope.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		496AC0481CB920B600D91089 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		496AC04A1CB920B600D91089 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		496AC04D1CB920B600D91089 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		496AC0501CB920B600D91089 /* Kaleidoscope.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Kaleidoscope.xcdatamodel; sourceTree = "<group>"; };
+		496AC0521CB920B600D91089 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		496AC0551CB920B600D91089 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		496AC0571CB920B600D91089 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		496AC0421CB920B500D91089 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		496AC03C1CB920B500D91089 = {
+			isa = PBXGroup;
+			children = (
+				496AC0471CB920B600D91089 /* Kaleidoscope */,
+				496AC0461CB920B500D91089 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		496AC0461CB920B500D91089 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				496AC0451CB920B500D91089 /* Kaleidoscope.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		496AC0471CB920B600D91089 /* Kaleidoscope */ = {
+			isa = PBXGroup;
+			children = (
+				496AC0481CB920B600D91089 /* AppDelegate.swift */,
+				496AC04A1CB920B600D91089 /* ViewController.swift */,
+				496AC04C1CB920B600D91089 /* Main.storyboard */,
+				496AC0521CB920B600D91089 /* Assets.xcassets */,
+				496AC0541CB920B600D91089 /* LaunchScreen.storyboard */,
+				496AC0571CB920B600D91089 /* Info.plist */,
+				496AC04F1CB920B600D91089 /* Kaleidoscope.xcdatamodeld */,
+			);
+			path = Kaleidoscope;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		496AC0441CB920B500D91089 /* Kaleidoscope */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 496AC05A1CB920B600D91089 /* Build configuration list for PBXNativeTarget "Kaleidoscope" */;
+			buildPhases = (
+				496AC0411CB920B500D91089 /* Sources */,
+				496AC0421CB920B500D91089 /* Frameworks */,
+				496AC0431CB920B500D91089 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Kaleidoscope;
+			productName = Kaleidoscope;
+			productReference = 496AC0451CB920B500D91089 /* Kaleidoscope.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		496AC03D1CB920B500D91089 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0730;
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "Andrew Tantomo";
+				TargetAttributes = {
+					496AC0441CB920B500D91089 = {
+						CreatedOnToolsVersion = 7.3;
+					};
+				};
+			};
+			buildConfigurationList = 496AC0401CB920B500D91089 /* Build configuration list for PBXProject "Kaleidoscope" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 496AC03C1CB920B500D91089;
+			productRefGroup = 496AC0461CB920B500D91089 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				496AC0441CB920B500D91089 /* Kaleidoscope */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		496AC0431CB920B500D91089 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				496AC0561CB920B600D91089 /* LaunchScreen.storyboard in Resources */,
+				496AC0531CB920B600D91089 /* Assets.xcassets in Resources */,
+				496AC04E1CB920B600D91089 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		496AC0411CB920B500D91089 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				496AC0511CB920B600D91089 /* Kaleidoscope.xcdatamodeld in Sources */,
+				496AC04B1CB920B600D91089 /* ViewController.swift in Sources */,
+				496AC0491CB920B600D91089 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		496AC04C1CB920B600D91089 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				496AC04D1CB920B600D91089 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		496AC0541CB920B600D91089 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				496AC0551CB920B600D91089 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		496AC0581CB920B600D91089 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		496AC0591CB920B600D91089 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		496AC05B1CB920B600D91089 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = Kaleidoscope/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "Andrew-Tantomo.Kaleidoscope";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		496AC05C1CB920B600D91089 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = Kaleidoscope/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "Andrew-Tantomo.Kaleidoscope";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		496AC0401CB920B500D91089 /* Build configuration list for PBXProject "Kaleidoscope" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				496AC0581CB920B600D91089 /* Debug */,
+				496AC0591CB920B600D91089 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		496AC05A1CB920B600D91089 /* Build configuration list for PBXNativeTarget "Kaleidoscope" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				496AC05B1CB920B600D91089 /* Debug */,
+				496AC05C1CB920B600D91089 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		496AC04F1CB920B600D91089 /* Kaleidoscope.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				496AC0501CB920B600D91089 /* Kaleidoscope.xcdatamodel */,
+			);
+			currentVersion = 496AC0501CB920B600D91089 /* Kaleidoscope.xcdatamodel */;
+			path = Kaleidoscope.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 496AC03D1CB920B500D91089 /* Project object */;
+}
