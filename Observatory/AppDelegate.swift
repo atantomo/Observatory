@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  Kaleidoscope
+//  Observatory
 //
 //  Created by Andrew Tantomo on 2016/04/09.
 //  Copyright © 2016年 Andrew Tantomo. All rights reserved.
@@ -47,14 +47,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Core Data stack
 
     lazy var applicationDocumentsDirectory: NSURL = {
-        // The directory the application uses to store the Core Data store file. This code uses a directory named "Andrew-Tantomo.Kaleidoscope" in the application's documents Application Support directory.
+        // The directory the application uses to store the Core Data store file. This code uses a directory named "Andrew-Tantomo.Observatory" in the application's documents Application Support directory.
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
         return urls[urls.count-1]
     }()
 
     lazy var managedObjectModel: NSManagedObjectModel = {
         // The managed object model for the application. This property is not optional. It is a fatal error for the application not to be able to find and load its model.
-        let modelURL = NSBundle.mainBundle().URLForResource("Kaleidoscope", withExtension: "momd")!
+        let modelURL = NSBundle.mainBundle().URLForResource("Observatory", withExtension: "momd")!
         return NSManagedObjectModel(contentsOfURL: modelURL)!
     }()
 
