@@ -1,12 +1,12 @@
 //
-//  UIViewController.swift
+//  UIViewController+GCD.swift
 //  Observatory
 //
 //  Created by Andrew Tantomo on 2016/04/11.
 //  Copyright © 2016年 Andrew Tantomo. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 extension UIViewController {
 

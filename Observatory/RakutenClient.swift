@@ -1,6 +1,6 @@
 //
 //  RakutenClient.swift
-//  Kaleidoscope
+//  Observatory
 //
 //  Created by Andrew Tantomo on 2016/04/10.
 //  Copyright © 2016年 Andrew Tantomo. All rights reserved.
@@ -25,7 +25,7 @@ internal enum HttpStatusCode {
     init(code: Int) {
 
         switch code {
-        case 200...299:
+        case 200..<300:
             self = .Success
         case 400:
             self = .BadRequest
@@ -45,12 +45,27 @@ final class RakutenClient: NSObject {
     enum ClientError: ErrorType {
 
         case Data
-        case Network
+        case Connectivity
         case StatusCode(HttpStatusCode)
+    }
+
+    enum Api {
+
+        case Item
+        case Genre
     }
 
     var session: NSURLSession
 
+    private var itemApiBasePath: String {
+
+        return Constants.Rakuten.ApiName.Item + Constants.Rakuten.Methods.Search + Constants.Rakuten.ApiVersion.Version
+    }
+
+    private var genreApiBasePath: String {
+
+        return Constants.Rakuten.ApiName.Genre + Constants.Rakuten.Methods.Search + Constants.Rakuten.ApiVersion.Version
+    }
 
     override init() {
 
@@ -68,16 +83,22 @@ final class RakutenClient: NSObject {
     }
 
     struct Caches {
+        
         static let imageCache = ImageCache()
     }
 
-    func taskForGETMethod(params: [String: AnyObject], completionHandler: (Result<NSDictionary>) -> ()) -> NSURLSessionDataTask {
+    func taskForGETMethod(api: Api, params: [String: AnyObject], completionHandler: (Result<NSDictionary>) -> ()) -> NSURLSessionDataTask {
 
-        let urlString = Constants.Rakuten.BaseUrlSecure +
-            Constants.Rakuten.ApiName.Item +
-            Constants.Rakuten.Methods.Search +
-            Constants.Rakuten.ApiVersion.Version +
-            escapedParameters(params)
+        var apiBasePath = String()
+
+        switch api {
+        case .Item:
+            apiBasePath = itemApiBasePath
+        case .Genre:
+            apiBasePath = genreApiBasePath
+        }
+
+        let urlString = Constants.Rakuten.BaseUrlSecure + apiBasePath + escapedParameters(params)
 
         let url = NSURL(string: urlString)!
 
@@ -134,7 +155,7 @@ final class RakutenClient: NSObject {
         guard error == nil else {
 
             print("Request returned an error: \(error)")
-            completionHandler(.Error(ClientError.Network))
+            completionHandler(.Error(ClientError.Connectivity))
             return false
         }
 

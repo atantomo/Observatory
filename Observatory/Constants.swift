@@ -29,19 +29,39 @@ struct Constants {
         struct JSONBody {
             static let Format = "format"
             static let Keyword = "keyword"
-            static let Genre = "genreId"
+            static let GenreId = "genreId"
+            static let GenrePath = "genrePath"
+            static let PerPage = "hits"
             static let AppId = "applicationId"
         }
 
         struct JSONResponse {
             static let Items = "Items"
             static let Item = "Item"
+
+            static let Code = "itemCode"
             static let Name = "itemName"
-            static let Availability = "availability"
+            static let Price = "itemPrice"
+
             static let ImageUrl = "imageUrl"
             static let ImageUrlS = "smallImageUrls"
             static let ImageUrlM = "mediumImageUrls"
+
+            static let Availability = "availability"
+            static let ReviewCount = "reviewCount"
+            static let ReviewAverage = "reviewAverage"
+            static let GenreId = "genreId"
+
+            static let Children = "children"
+            static let Child = "child"
+            static let GenreName = "genreName"
         }
+    }
+
+    struct Archiver {
+
+        static let Keyword = "keyword"
+        static let Category = "category"
     }
     
 }
