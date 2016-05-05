@@ -35,18 +35,23 @@ class CategoryInputViewController: UITableViewController {
         categoryTableView.dataSource = self
 
 
-        RakutenClient.sharedInstance().getCategory { categories, errorMessage in
+        RakutenClient.sharedInstance().getCategory { result in
 
-            guard let resCategories = categories else {
-                return
+            switch result {
+            case let .Success(categories):
+
+                CategoryData.data = categories
+                self.filteredCategories = CategoryData.data
+
+                dispatch_async(dispatch_get_main_queue(), {
+                    self.categoryTableView.reloadData()
+                })
+
+            case let .Error(err):
+
+                let msg = RakutenClient.generateErrorMessage(err)
+                self.displayErrorAsync(msg)
             }
-
-            CategoryData.data = resCategories
-            self.filteredCategories = CategoryData.data
-
-            dispatch_async(dispatch_get_main_queue(), {
-                self.categoryTableView.reloadData()
-            })
         }
     }
 
@@ -93,8 +98,10 @@ extension CategoryInputViewController: UISearchResultsUpdating {
         }
 
         filteredCategories = CategoryData.data.filter { category in
-            let isFound = category.name.lowercaseString.containsString(lowercaseInputText)
-            return lowercaseInputText.isEmpty || isFound
+
+            let lowercaseCategoryText = category.name.lowercaseString
+            let isMatch = lowercaseCategoryText.containsString(lowercaseInputText)
+            return lowercaseInputText.isEmpty || isMatch
         }
         
         categoryTableView.reloadData()

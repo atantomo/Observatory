@@ -29,9 +29,8 @@ class SearchSettingViewController: UITableViewController {
 
     override func viewDidLoad() {
 
-        keywordLabel.text = searchSetting.keyword
-        categoryLabel.text = searchSetting.category.name
-
+        setKeywordLabelText(searchSetting.keyword)
+        setCategoryLabelText(searchSetting.category.name)
     }
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -62,24 +61,43 @@ class SearchSettingViewController: UITableViewController {
 
     @IBAction func saveBarButtonTapped(sender: UIBarButtonItem) {
 
-        let blockerView = BlockerView(frame: view.frame)
-        blockerView.backgroundShade.backgroundColor = UIColor.blackColor()
-        view.addSubview(blockerView)
+        let loaderView = LoaderView(frame: view.frame)
+        view.addSubview(loaderView)
 
         let keyword = searchSetting.keyword
-        let catId = String(searchSetting.category.id)
+        let catId = searchSetting.category.id
 
-        RakutenClient.sharedInstance().getItem(withKeyword: keyword, genreId: catId) { items, errorMessage in
+        RakutenClient.sharedInstance().getItem(withKeyword: keyword, genreId: catId) { result in
+            
+            self.removeViewAsync(loaderView)
 
-            self.removeViewAsync(blockerView)
+            switch result {
+            case let .Success(items):
 
-            self.delegate?.searchSettingViewController(self, didRetrieveResult: items)
+                self.delegate?.searchSettingViewController(self, didRetrieveResult: items)
+                dispatch_async(dispatch_get_main_queue(), {
+                    self.dismissViewControllerAnimated(true) {}
+                })
+            case let .Error(err):
 
-            dispatch_async(dispatch_get_main_queue(), {
-                self.dismissViewControllerAnimated(true) {}
-            })
+                let msg = RakutenClient.generateErrorMessage(err)
+                self.displayErrorAsync(msg)
+            }
         }
-        
+    }
+
+    private func setKeywordLabelText(string: String) {
+
+        guard !string.isEmpty else {
+            keywordLabel.text = "Not set"
+            return
+        }
+        keywordLabel.text = string
+    }
+
+    private func setCategoryLabelText(string: String) {
+
+        categoryLabel.text = string
     }
 
 }

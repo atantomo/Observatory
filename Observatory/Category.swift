@@ -10,8 +10,11 @@ import Foundation
 
 class Category : NSObject, NSCoding {
 
+    static let allCategoryId = 0
+
     var id = Int()
     var name = String()
+
 
     init(dictionary: [String : AnyObject]) {
 
@@ -21,8 +24,8 @@ class Category : NSObject, NSCoding {
 
     static func generateAllCategory() -> Category {
 
-        let all = [
-            Constants.Rakuten.JSONResponse.GenreId: 215783,
+        let all: [String : AnyObject] = [
+            Constants.Rakuten.JSONResponse.GenreId: allCategoryId,
             Constants.Rakuten.JSONResponse.GenreName: "All"
         ]
         return Category(dictionary: all)
@@ -38,8 +41,6 @@ class Category : NSObject, NSCoding {
         
         return genres
     }
-
-    // MARK: - NSCoding
 
     func encodeWithCoder(archiver: NSCoder) {
 

@@ -27,19 +27,18 @@ extension Dictionary {
 
 extension RakutenClient {
 
-    func getItem(withKeyword keyword: String, genreId: String, completionHandler: (items: [[String: AnyObject]]?, errorMessage: String?) -> Void) {
+    func getItem(withKeyword keyword: String, genreId: Int, completionHandler: (Result<[[String: AnyObject]]>) -> ()) {
 
         let params = [
-            
+
             Constants.Rakuten.JSONBody.AppId: Constants.Rakuten.ApiKey,
             Constants.Rakuten.JSONBody.Format: "json",
             Constants.Rakuten.JSONBody.Keyword: keyword,
-            Constants.Rakuten.JSONBody.GenreId: genreId,
+            Constants.Rakuten.JSONBody.GenreId: String(genreId),
             Constants.Rakuten.JSONBody.PerPage: "30"
         ]
 
         let filteredParams = params.retainTypeFilter { !$1.isEmpty }
-        print(filteredParams)
 
         taskForGETMethod(.Item, params: filteredParams) { result in
 
@@ -48,35 +47,72 @@ extension RakutenClient {
             case let .Success(data):
 
                 guard let items = data[Constants.Rakuten.JSONResponse.Items] as? [[String: AnyObject]] else {
-                    
                     print("Could not find Items key in data")
-                    completionHandler(items: nil, errorMessage: "Error processing data")
+                    completionHandler(.Error(ClientError.Data))
                     return
                 }
 
                 let item = items.flatMap { $0[Constants.Rakuten.JSONResponse.Item] as? [String: AnyObject] }
-
-                completionHandler(items: item, errorMessage: nil)
+                completionHandler(.Success(item))
 
             case let .Error(error):
+                
+                completionHandler(.Error(error))
+            }
+        }
+    }
 
-                switch error as! ClientError {
+    func getItem(withItemCodes itemCodes: [String], completionHandler: (Result<[String: [String: AnyObject]]>) -> ()) {
 
-                case .Data:
-                    completionHandler(items: nil, errorMessage: "Error processing data")
+        var compoundItems = [String: [String: AnyObject]]()
+        var resultCount = 0
+        itemCodes.forEach { itemCode in
 
-                case .Connectivity:
-                    completionHandler(items: nil, errorMessage: "Connection could not be established")
+            let params = [
+
+                Constants.Rakuten.JSONBody.AppId: Constants.Rakuten.ApiKey,
+                Constants.Rakuten.JSONBody.Format: "json",
+                Constants.Rakuten.JSONBody.ItemCode: itemCode,
+                Constants.Rakuten.JSONBody.PerPage: "1"
+            ]
+
+            taskForGETMethod(.Item, params: params) { result in
+
+                resultCount += 1
+
+                switch result {
+
+                case let .Success(data):
+
+                    guard let items = data[Constants.Rakuten.JSONResponse.Items] as? [[String: AnyObject]] else {
+                        print("Could not find Items key in data")
+                        completionHandler(.Error(ClientError.Data))
+                        break
+                    }
+
+                    let item = items.flatMap { $0[Constants.Rakuten.JSONResponse.Item] as? [String: AnyObject] }
+
+                    let itemCode = item.first!["itemCode"] as! String
+                    compoundItems[itemCode] = item.first!
+
+                    if resultCount == itemCodes.count {
+
+
+                        print(compoundItems)
+                        completionHandler(.Success(compoundItems))
+                        break
+                    }
+
+                case let .Error(error):
                     
-                case .StatusCode(_):
-                    completionHandler(items: nil, errorMessage: "Request returned an error response")
-
+                    completionHandler(.Error(error))
+                    break
                 }
             }
         }
     }
 
-    func getCategory(completionHandler: (categories: [Category]?, errorMessage: String?) -> Void) {
+    func getCategory(completionHandler: (Result<[Category]>) -> ()) {
 
         let params = [
 
@@ -97,7 +133,7 @@ extension RakutenClient {
                 guard let categoriesDict = data[Constants.Rakuten.JSONResponse.Children] as? [[String: AnyObject]] else {
 
                     print("Could not find Children key in data")
-                    completionHandler(categories: nil, errorMessage: "Error processing data")
+                    completionHandler(.Error(ClientError.Data))
                     return
                 }
 
@@ -107,22 +143,11 @@ extension RakutenClient {
                 categories.append(Category.generateAllCategory())
                 categories.appendContentsOf(Category.extractResult(categoryDict))
 
-                completionHandler(categories: categories, errorMessage: nil)
+                completionHandler(.Success(categories))
 
             case let .Error(error):
 
-                switch error as! ClientError {
-
-                case .Data:
-                    completionHandler(categories: nil, errorMessage: "Error processing data")
-
-                case .Connectivity:
-                    completionHandler(categories: nil, errorMessage: "Connection could not be established")
-
-                case .StatusCode(_):
-                    completionHandler(categories: nil, errorMessage: "Request returned an error response")
-                    
-                }
+                completionHandler(.Error(error))
             }
         }
     }

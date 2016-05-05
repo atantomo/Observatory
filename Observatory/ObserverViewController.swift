@@ -1,15 +1,15 @@
 //
-//  BrowserViewController.swift
+//  ObserverViewController.swift
 //  Observatory
 //
-//  Created by Andrew Tantomo on 2016/04/10.
+//  Created by Andrew Tantomo on 2016/05/01.
 //  Copyright © 2016年 Andrew Tantomo. All rights reserved.
 //
 
 import UIKit
 import CoreData
 
-class BrowserViewController: UIViewController {
+class ObserverViewController: UIViewController {
 
     @IBOutlet weak var itemCollectionView: UICollectionView!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
@@ -17,7 +17,6 @@ class BrowserViewController: UIViewController {
     @IBOutlet weak var emptyPlaceholderView: UIView!
 
     var items = [Item]()
-    var searchSetting = SearchSetting.unarchivedInstance() ?? SearchSetting()
 
     private let itemSpacer: CGFloat = 8.0
     private let itemPerRow: CGFloat = 3.0
@@ -48,21 +47,7 @@ class BrowserViewController: UIViewController {
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
 
-        if (segue.identifier == "SearchSettingSegue") {
-
-            guard let navVc = segue.destinationViewController as? UINavigationController else {
-                return
-            }
-
-            guard let settingVc = navVc.viewControllers.first as? SearchSettingViewController else {
-                return
-            }
-
-            settingVc.searchSetting = searchSetting
-            settingVc.delegate = self
-        }
-
-        if (segue.identifier == "BrowserDetailSegue") {
+        if (segue.identifier == "ObserverDetailSegue") {
 
             guard let item = sender as? Item else {
                 return
@@ -80,21 +65,33 @@ class BrowserViewController: UIViewController {
         }
     }
 
-    @IBAction func refreshBarButtonTapped(sender: UIBarButtonItem) {
+    @IBAction func updateButtonTapped(sender: UIBarButtonItem) {
+
+        items = fetchStoredItems()
+        
+        let itemCodes = items.map {
+            $0.itemCode
+        }
 
         let loaderView = LoaderView(frame: view.frame)
         view.addSubview(loaderView)
 
-        let keyword = searchSetting.keyword
-        let catId = searchSetting.category.id
-
-        RakutenClient.sharedInstance().getItem(withKeyword: keyword, genreId: catId) { result in
+        RakutenClient.sharedInstance().getItem(withItemCodes: itemCodes) { result in
 
             self.removeViewAsync(loaderView)
 
             switch result {
-            case let .Success(items):
-                self.refreshItemsFromResult(items)
+            case let .Success(updateItems):
+
+                self.items.forEach { it in
+                    it.updateItem(updateItems[it.itemCode]!)
+                }
+
+                dispatch_async(dispatch_get_main_queue(), {
+
+                    self.itemCollectionView.reloadData()
+                    CoreDataStackManager.sharedInstance().saveContext()
+                })
 
             case let .Error(err):
 
@@ -108,6 +105,7 @@ class BrowserViewController: UIViewController {
 
         let fetchRequest = NSFetchRequest(entityName: "Item")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: true)]
+        fetchRequest.predicate = NSPredicate(format: "observeFlg == true")
         do {
             return try sharedContext.executeFetchRequest(fetchRequest) as! [Item]
         } catch  let error as NSError {
@@ -131,28 +129,6 @@ class BrowserViewController: UIViewController {
         layout.itemSize = CGSizeMake(dimension, dimension)
     }
 
-    private func refreshItemsFromResult(result: [[String: AnyObject]]?) {
-
-        // remove previous items
-        self.items.forEach {
-            self.sharedContext.deleteObject($0)
-        }
-
-        // add new items
-        if let retrievedItems = result {
-
-            items = retrievedItems.map() { (dictionary: [String: AnyObject]) in
-                Item(dictionary: dictionary, context: self.sharedContext)
-            }
-        }
-
-        dispatch_async(dispatch_get_main_queue(), {
-
-            self.itemCollectionView.reloadData()
-            CoreDataStackManager.sharedInstance().saveContext()
-        })
-    }
-
     private func configureCell(cell: ItemCollectionViewCell, withItem item: Item) {
 
         if let localImage = item.itemImage {
@@ -171,9 +147,10 @@ class BrowserViewController: UIViewController {
             RakutenClient.sharedInstance().taskForImageWithUrl(imageUrl) { result in
 
                 self.removeViewAsync(placeholderView)
-                
+
                 switch result {
                 case let .Success(data):
+                    
                     dispatch_async(dispatch_get_main_queue()) {
 
                         let image = UIImage(data: data)
@@ -183,6 +160,7 @@ class BrowserViewController: UIViewController {
                         cell.itemImageView.image = image
                     }
                 case .Error:
+
                     cell.itemImageView.image = nil
                     return
                 }
@@ -192,7 +170,7 @@ class BrowserViewController: UIViewController {
 
 }
 
-extension BrowserViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension ObserverViewController: UICollectionViewDelegate, UICollectionViewDataSource {
 
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 
@@ -211,17 +189,7 @@ extension BrowserViewController: UICollectionViewDelegate, UICollectionViewDataS
 
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
 
-        performSegueWithIdentifier("BrowserDetailSegue", sender: items[indexPath.item])
+        performSegueWithIdentifier("ObserverDetailSegue", sender: items[indexPath.item])
         collectionView.deselectItemAtIndexPath(indexPath, animated: true)
-    }
-}
-
-extension BrowserViewController: SearchSettingViewControllerDelegate {
-
-    func searchSettingViewController(searchSetting: SearchSettingViewController, didRetrieveResult result: [[String : AnyObject]]?) {
-
-        if let fetchedItems = result {
-            self.refreshItemsFromResult(fetchedItems)
-        }
     }
 }

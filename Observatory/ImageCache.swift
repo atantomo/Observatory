@@ -39,6 +39,10 @@ class ImageCache {
 
             inMemoryCache.removeObjectForKey(path)
 
+            guard NSFileManager.defaultManager().fileExistsAtPath(path) else {
+                return
+            }
+
             do {
                 try NSFileManager.defaultManager().removeItemAtPath(path)
             } catch {

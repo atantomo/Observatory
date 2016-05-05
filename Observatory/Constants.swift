@@ -29,6 +29,7 @@ struct Constants {
         struct JSONBody {
             static let Format = "format"
             static let Keyword = "keyword"
+            static let ItemCode = "itemCode"
             static let GenreId = "genreId"
             static let GenrePath = "genrePath"
             static let PerPage = "hits"
@@ -42,6 +43,7 @@ struct Constants {
             static let Code = "itemCode"
             static let Name = "itemName"
             static let Price = "itemPrice"
+            static let Url = "itemUrl"
 
             static let ImageUrl = "imageUrl"
             static let ImageUrlS = "smallImageUrls"

@@ -87,6 +87,25 @@ final class RakutenClient: NSObject {
         static let imageCache = ImageCache()
     }
 
+    static func generateErrorMessage(error: ErrorType) -> String? {
+
+        guard let err = error as? ClientError else {
+            return nil
+        }
+
+        switch err {
+
+        case .Connectivity:
+            return "Connection could not be established"
+
+        case .Data:
+            return "Error in processing data"
+
+        case .StatusCode:
+            return "Request returned an error response"
+        }
+    }
+
     func taskForGETMethod(api: Api, params: [String: AnyObject], completionHandler: (Result<NSDictionary>) -> ()) -> NSURLSessionDataTask {
 
         var apiBasePath = String()
@@ -101,6 +120,7 @@ final class RakutenClient: NSObject {
         let urlString = Constants.Rakuten.BaseUrlSecure + apiBasePath + escapedParameters(params)
 
         let url = NSURL(string: urlString)!
+        print(url)
 
         let request = NSMutableURLRequest(URL: url)
         request.HTTPMethod = "GET"
@@ -131,7 +151,7 @@ final class RakutenClient: NSObject {
         return task
     }
 
-    func taskForImageWithUrl(urlString: String, completionHandler: (Result<NSData?>) -> ()) -> NSURLSessionTask {
+    func taskForImageWithUrl(urlString: String, completionHandler: (Result<NSData>) -> ()) -> NSURLSessionTask {
 
         let url = NSURL(string: urlString)!
         let request = NSURLRequest(URL: url)
@@ -142,7 +162,7 @@ final class RakutenClient: NSObject {
                 return
             }
 
-            completionHandler(.Success(data))
+            completionHandler(.Success(data!))
         }
 
         task.resume()

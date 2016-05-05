@@ -1,5 +1,5 @@
 //
-//  UIViewController+GCD.swift
+//  UIViewController+Async.swift
 //  Observatory
 //
 //  Created by Andrew Tantomo on 2016/04/11.

@@ -13,21 +13,32 @@ class Item: NSManagedObject {
 
     @NSManaged var itemCode: String
     @NSManaged var itemName: String?
-    @NSManaged var itemPrice: String?
+    @NSManaged var itemPrice: NSNumber?
+    @NSManaged var itemUrl: String?
     @NSManaged var imageUrl: String?
-    @NSManaged var availability: String?
+    @NSManaged var availability: NSNumber?
     @NSManaged var reviewCount: NSNumber?
     @NSManaged var reviewAverage: NSNumber?
     @NSManaged var genreId: NSNumber?
+    @NSManaged var timestamp: NSDate
+    @NSManaged var observeFlg: Bool
+    @NSManaged var readFlg: Bool
 
-    @NSManaged var collectionFlg: Bool
+    @NSManaged var avilabilityHistories: [AvailabilityHistory]
+    @NSManaged var priceHistories: [PriceHistory]
+    @NSManaged var reviewHistories: [ReviewHistory]
 
-    var fileName: String {
+    var sharedContext: NSManagedObjectContext {
 
-        return String(itemCode)
+        return CoreDataStackManager.sharedInstance().managedObjectContext
     }
 
-    var locationImage: UIImage? {
+    var fileName: String {
+        
+        return itemCode.stringByReplacingOccurrencesOfString(":", withString: "_")
+    }
+
+    var itemImage: UIImage? {
 
         get {
             return RakutenClient.Caches.imageCache.imageWithIdentifier(fileName)
@@ -50,8 +61,9 @@ class Item: NSManagedObject {
 
         itemCode = dictionary[Constants.Rakuten.JSONResponse.Code] as! String
         itemName = dictionary[Constants.Rakuten.JSONResponse.Name] as? String
-        itemPrice = dictionary[Constants.Rakuten.JSONResponse.Price] as? String
-        availability = dictionary[Constants.Rakuten.JSONResponse.Availability] as? String
+        itemPrice = dictionary[Constants.Rakuten.JSONResponse.Price] as? NSNumber
+        itemUrl = dictionary[Constants.Rakuten.JSONResponse.Url] as? String
+        availability = dictionary[Constants.Rakuten.JSONResponse.Availability] as? NSNumber
         reviewCount = dictionary[Constants.Rakuten.JSONResponse.ReviewCount] as? NSNumber
         reviewAverage = dictionary[Constants.Rakuten.JSONResponse.ReviewAverage] as? NSNumber
         genreId = dictionary[Constants.Rakuten.JSONResponse.GenreId] as? NSNumber
@@ -62,12 +74,62 @@ class Item: NSManagedObject {
             imageUrl = url
         }
 
-        collectionFlg = false
+        timestamp = NSDate()
+        readFlg = false
+        observeFlg = false
     }
 
     override func prepareForDeletion() {
 
         RakutenClient.Caches.imageCache.storeImage(nil, withIdentifier: fileName)
+    }
+
+    func updateItem(dictionary: [String: AnyObject]) {
+
+        itemName = dictionary[Constants.Rakuten.JSONResponse.Name] as? String
+        itemUrl = dictionary[Constants.Rakuten.JSONResponse.Url] as? String
+        genreId = dictionary[Constants.Rakuten.JSONResponse.GenreId] as? NSNumber
+
+        if let urls = dictionary[Constants.Rakuten.JSONResponse.ImageUrlM] as? [[String:String]],
+            let url = urls.first?[Constants.Rakuten.JSONResponse.ImageUrl] {
+
+            imageUrl = url
+        }
+
+        timestamp = NSDate()
+
+        let updatePrice = dictionary[Constants.Rakuten.JSONResponse.Price] as? NSNumber
+        let updateReviewCount = dictionary[Constants.Rakuten.JSONResponse.ReviewCount] as? NSNumber
+        let updateReviewAverage = dictionary[Constants.Rakuten.JSONResponse.ReviewAverage] as? NSNumber
+        let updateAvailability = dictionary[Constants.Rakuten.JSONResponse.Availability] as? NSNumber
+
+        if itemPrice != updatePrice {
+
+            let priceHistory = PriceHistory(itemPrice: itemPrice, context: sharedContext)
+            priceHistory.item = self
+
+            itemPrice = updatePrice
+            readFlg = false
+        }
+
+        if availability != updateAvailability {
+
+            let availabilityHistory = AvailabilityHistory(availability: availability, context: sharedContext)
+            availabilityHistory.item = self
+
+            availability = updateAvailability
+            readFlg = false
+        }
+
+        if reviewCount != updateReviewCount || reviewAverage != updateReviewAverage {
+
+            let reviewHistory = ReviewHistory(count: reviewCount, average: reviewAverage, context: sharedContext)
+            reviewHistory.item = self
+
+            reviewCount = updateReviewCount
+            reviewAverage = updateReviewAverage
+            readFlg = false
+        }
     }
 }
 
