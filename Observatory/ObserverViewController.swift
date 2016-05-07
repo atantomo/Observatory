@@ -84,7 +84,7 @@ class ObserverViewController: UIViewController {
             case let .Success(updateItems):
 
                 self.items.forEach { it in
-                    it.updateItem(updateItems[it.itemCode]!)
+                    it.updateItem(updateItems[it.itemCode]!, context: self.sharedContext)
                 }
 
                 dispatch_async(dispatch_get_main_queue(), {

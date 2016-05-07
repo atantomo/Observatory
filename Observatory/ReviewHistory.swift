@@ -37,6 +37,20 @@ class ReviewHistory: NSManagedObject {
         timestamp = NSDate()
         readFlg = false
     }
+
+    static func fetchStoredHistoryForItem(item: Item, context: NSManagedObjectContext) -> [ReviewHistory] {
+
+        let fetchRequest = NSFetchRequest(entityName: "ReviewHistory")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
+        fetchRequest.predicate = NSPredicate(format: "item == %@", item)
+
+        do {
+            return try context.executeFetchRequest(fetchRequest) as! [ReviewHistory]
+        } catch  let error as NSError {
+            print("Error in fecthing items: \(error)")
+            return [ReviewHistory]()
+        }
+    }
 }
 
 

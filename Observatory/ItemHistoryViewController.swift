@@ -50,9 +50,7 @@ class ItemHistoryViewController: UITableViewController {
             }
             reviewCell.reviewTextLabel?.text = reviewHistory.revCount
             reviewCell.reviewDetailLabel?.text = reviewHistory.time
-
-            reviewCell.reviewBarWidthConstraint.constant = CGFloat(ItemDetail.getRelativeWidth(reviewHistory.revBarLength)) / 5.0 * reviewCell.reviewBarView.frame.width
-            reviewCell.reviewBarView.maskView = UIImageView(image: UIImage(named: "star"))
+            reviewCell.setReviewBarLength(reviewHistory.revBarLength)
 
         case let .Availability(availability, _):
 
@@ -98,7 +96,7 @@ class ItemHistoryViewController: UITableViewController {
 
         switch hist {
         case .Availability, .Price:
-            cell = tableView.dequeueReusableCellWithIdentifier("TrackableHistoryCell", forIndexPath: indexPath)
+            cell = tableView.dequeueReusableCellWithIdentifier("TraceableHistoryCell", forIndexPath: indexPath)
 
         case .Review:
             cell = tableView.dequeueReusableCellWithIdentifier("ReviewHistoryCell", forIndexPath: indexPath)

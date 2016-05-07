@@ -31,4 +31,18 @@ class AvailabilityHistory: NSManagedObject {
         timestamp = NSDate()
         readFlg = false
     }
+
+    static func fetchStoredHistoryForItem(item: Item, context: NSManagedObjectContext) -> [AvailabilityHistory] {
+
+        let fetchRequest = NSFetchRequest(entityName: "AvailabilityHistory")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
+        fetchRequest.predicate = NSPredicate(format: "item == %@", item)
+
+        do {
+            return try context.executeFetchRequest(fetchRequest) as! [AvailabilityHistory]
+        } catch  let error as NSError {
+            print("Error in fecthing items: \(error)")
+            return [AvailabilityHistory]()
+        }
+    }
 }

@@ -35,6 +35,20 @@ class PriceHistory: NSManagedObject {
         timestamp = NSDate()
         readFlg = false
     }
+
+    static func fetchStoredHistoryForItem(item: Item, context: NSManagedObjectContext) -> [PriceHistory] {
+
+        let fetchRequest = NSFetchRequest(entityName: "PriceHistory")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
+        fetchRequest.predicate = NSPredicate(format: "item == %@", item)
+
+        do {
+            return try context.executeFetchRequest(fetchRequest) as! [PriceHistory]
+        } catch  let error as NSError {
+            print("Error in fecthing items: \(error)")
+            return [PriceHistory]()
+        }
+    }
 }
 
 

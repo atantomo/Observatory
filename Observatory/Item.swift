@@ -28,11 +28,6 @@ class Item: NSManagedObject {
     @NSManaged var priceHistories: [PriceHistory]
     @NSManaged var reviewHistories: [ReviewHistory]
 
-    var sharedContext: NSManagedObjectContext {
-
-        return CoreDataStackManager.sharedInstance().managedObjectContext
-    }
-
     var fileName: String {
         
         return itemCode.stringByReplacingOccurrencesOfString(":", withString: "_")
@@ -84,7 +79,7 @@ class Item: NSManagedObject {
         RakutenClient.Caches.imageCache.storeImage(nil, withIdentifier: fileName)
     }
 
-    func updateItem(dictionary: [String: AnyObject]) {
+    func updateItem(dictionary: [String: AnyObject], context: NSManagedObjectContext) {
 
         itemName = dictionary[Constants.Rakuten.JSONResponse.Name] as? String
         itemUrl = dictionary[Constants.Rakuten.JSONResponse.Url] as? String
@@ -98,14 +93,14 @@ class Item: NSManagedObject {
 
         timestamp = NSDate()
 
-        let updatePrice = dictionary[Constants.Rakuten.JSONResponse.Price] as? NSNumber
+        let updatePrice = 4000 //dictionary[Constants.Rakuten.JSONResponse.Price] as? NSNumber
         let updateReviewCount = dictionary[Constants.Rakuten.JSONResponse.ReviewCount] as? NSNumber
         let updateReviewAverage = dictionary[Constants.Rakuten.JSONResponse.ReviewAverage] as? NSNumber
         let updateAvailability = dictionary[Constants.Rakuten.JSONResponse.Availability] as? NSNumber
 
         if itemPrice != updatePrice {
 
-            let priceHistory = PriceHistory(itemPrice: itemPrice, context: sharedContext)
+            let priceHistory = PriceHistory(itemPrice: itemPrice, context: context)
             priceHistory.item = self
 
             itemPrice = updatePrice
@@ -114,7 +109,7 @@ class Item: NSManagedObject {
 
         if availability != updateAvailability {
 
-            let availabilityHistory = AvailabilityHistory(availability: availability, context: sharedContext)
+            let availabilityHistory = AvailabilityHistory(availability: availability, context: context)
             availabilityHistory.item = self
 
             availability = updateAvailability
@@ -123,12 +118,24 @@ class Item: NSManagedObject {
 
         if reviewCount != updateReviewCount || reviewAverage != updateReviewAverage {
 
-            let reviewHistory = ReviewHistory(count: reviewCount, average: reviewAverage, context: sharedContext)
+            let reviewHistory = ReviewHistory(count: reviewCount, average: reviewAverage, context: context)
             reviewHistory.item = self
 
             reviewCount = updateReviewCount
             reviewAverage = updateReviewAverage
             readFlg = false
+        }
+    }
+
+    static func fetchStoredItems(context: NSManagedObjectContext) -> [Item] {
+
+        let fetchRequest = NSFetchRequest(entityName: "Item")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: true)]
+        do {
+            return try context.executeFetchRequest(fetchRequest) as! [Item]
+        } catch  let error as NSError {
+            print("Error in fecthing items: \(error)")
+            return [Item]()
         }
     }
 }

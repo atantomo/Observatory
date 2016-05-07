@@ -16,6 +16,7 @@ class ItemDetailViewController: UIViewController {
     @IBOutlet weak var itemImageView: UIImageView!
     @IBOutlet weak var itemDetailTableView: UITableView!
 
+    @IBOutlet weak var gradientView: UIView!
     @IBOutlet weak var imageFrameView: UIView!
     @IBOutlet weak var frameHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var itemWidthConstraint: NSLayoutConstraint!
@@ -23,7 +24,10 @@ class ItemDetailViewController: UIViewController {
     @IBOutlet weak var tableHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var contentWidthConstraint: NSLayoutConstraint!
 
+    @IBOutlet weak var observeButton: UIButton!
+
     var selectedItem: Item!
+    var observedItemCount: Int!
     var itemDetails = [ItemDetail]()
 
     var sharedContext: NSManagedObjectContext {
@@ -36,12 +40,19 @@ class ItemDetailViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
 
+        itemDetailTableView.estimatedRowHeight = 44
+        itemDetailTableView.rowHeight = UITableViewAutomaticDimension
+
         automaticallyAdjustsScrollViewInsets = false
 
-        itemDetails = ItemDetail.generateTableContent(selectedItem)
+        addGradientView()
+        updateObserveButtonForItem(selectedItem)
+
+        itemDetails = ItemDetail.generateTableContent(selectedItem, context: sharedContext)
         itemDetailTableView.delegate = self
         itemDetailTableView.dataSource = self
         itemDetailTableView.scrollEnabled = false
+
         itemDetailTableView.reloadData()
     }
 
@@ -54,6 +65,7 @@ class ItemDetailViewController: UIViewController {
     override func viewDidLayoutSubviews() {
 
         super.viewDidLayoutSubviews()
+
         contentWidthConstraint.constant = view.frame.width
         frameHeightConstraint.constant = imageFrameView.frame.width
         tableHeightConstraint.constant = itemDetailTableView.contentSize.height
@@ -104,6 +116,31 @@ class ItemDetailViewController: UIViewController {
                 return
             }
 
+            switch itemDetail.detailType {
+
+            case .Price:
+                let hist = PriceHistory.fetchStoredHistoryForItem(selectedItem, context: sharedContext)
+                hist.forEach {
+                    $0.readFlg = true
+                }
+
+            case .Review:
+                let hist = ReviewHistory.fetchStoredHistoryForItem(selectedItem, context: sharedContext)
+                hist.forEach {
+                    $0.readFlg = true
+                }
+
+            case .Availability:
+                let hist = AvailabilityHistory.fetchStoredHistoryForItem(selectedItem, context: sharedContext)
+                hist.forEach {
+                    $0.readFlg = true
+                }
+
+            default:
+                break
+            }
+            CoreDataStackManager.sharedInstance().saveContext()
+
             vc.selectedDetailType = itemDetail.detailType
         }
     }
@@ -115,6 +152,8 @@ class ItemDetailViewController: UIViewController {
 
     @IBAction func observeButtonTapped(sender: UIButton) {
 
+        let maximumObservedItemCount = 3
+
         if selectedItem.observeFlg {
 
             let alertCtrl = UIAlertController(title: "Notice", message: "All tracked data for this item will be erased. Would you like to proceed?", preferredStyle: .Alert)
@@ -125,6 +164,7 @@ class ItemDetailViewController: UIViewController {
                 dispatch_async(dispatch_get_main_queue(), {
 
                     CoreDataStackManager.sharedInstance().saveContext()
+                    self.updateObserveButtonForItem(self.selectedItem)
                 })
             }
             let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
@@ -135,9 +175,33 @@ class ItemDetailViewController: UIViewController {
             self.presentViewController(alertCtrl, animated: true, completion: nil)
         } else{
 
+            guard observedItemCount < maximumObservedItemCount else {
+
+                let alertCtrl = UIAlertController(title: "Notice", message: "You can only add up to \(maximumObservedItemCount) items to your observation list.", preferredStyle: .Alert)
+
+                let okAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+
+                alertCtrl.addAction(okAction)
+
+                self.presentViewController(alertCtrl, animated: true, completion: nil)
+                return
+            }
+
+            observedItemCount! += 1
+
             selectedItem.observeFlg = true
             CoreDataStackManager.sharedInstance().saveContext()
+
+            let alertCtrl = UIAlertController(title: "Notice", message: "Item has been added to your observation list. You can add \(maximumObservedItemCount - observedItemCount) more item(s).", preferredStyle: .Alert)
+
+            let okAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+
+            alertCtrl.addAction(okAction)
+
+            self.presentViewController(alertCtrl, animated: true, completion: nil)
+            updateObserveButtonForItem(selectedItem)
         }
+
 //        let availabilityHist = AvailabilityHistory(availability: selectedItem.availability, context: self.sharedContext)
 //        availabilityHist.item = selectedItem
 //        let priceHist = PriceHistory(itemPrice: selectedItem.itemPrice, context: self.sharedContext)
@@ -152,6 +216,15 @@ class ItemDetailViewController: UIViewController {
         let url = NSURL(string: selectedItem.itemUrl!)!
         UIApplication.sharedApplication().openURL(url)
         return
+    }
+
+    private func addGradientView() {
+
+        let gradient: CAGradientLayer = CAGradientLayer()
+        gradient.frame = gradientView.bounds
+        gradient.colors = [UIColor.lightGrayColor().colorWithAlphaComponent(0.7).CGColor, UIColor.clearColor().CGColor]
+        gradientView.layer.insertSublayer(gradient, atIndex: 0)
+        imageFrameView.addSubview(gradientView)
     }
 
     private func setImageLayout(image: UIImage) {
@@ -173,47 +246,78 @@ class ItemDetailViewController: UIViewController {
         }
     }
 
+    private func updateObserveButtonForItem(item: Item) {
+
+        if item.observeFlg {
+            observeButton.setTitle("Stop observing", forState: .Normal)
+            observeButton.backgroundColor = UIColor.lightGrayColor()
+        } else {
+            observeButton.setTitle("Start observing", forState: .Normal)
+            observeButton.backgroundColor = UIColor.darkGrayColor()
+        }
+    }
+
     private func configureCell(cell: UITableViewCell, withItemDetail itemDetail: ItemDetail) {
         
         switch itemDetail.detailType {
 
         case let .ItemName(name):
 
-            cell.textLabel?.text = name
+            guard let itemNameCell = cell as? ItemNameTableViewCell else {
+                return
+            }
+
+            itemNameCell.itemNameTextLabel?.text = name
 
         case let .Price(price, shouldNotify):
 
-            guard let pric = price.first else {
+            guard let traceableCell = cell as? TraceableTableViewCell, let pric = price.first else {
                 return
             }
 
-            cell.textLabel?.text = itemDetail.label
-            cell.detailTextLabel?.text = pric.data
+            if shouldNotify {
+                traceableCell.notificationContainerWidthConstraint.constant = 28
+                traceableCell.notificationIcon.hidden = false
+            } else {
+                traceableCell.notificationContainerWidthConstraint.constant = 0
+                traceableCell.notificationIcon.hidden = true
+            }
+            traceableCell.traceableTextLabel?.text = itemDetail.label
+            traceableCell.traceableDetailLabel?.text = pric.data
 
         case let .Review(review, shouldNotify):
 
-            guard let reviewCell = cell as? ReviewTableViewCell else {
+            guard let reviewCell = cell as? ReviewTableViewCell, let rev = review.first else {
                 return
             }
 
-            guard let rev = review.first else {
-                return
+            if shouldNotify {
+                reviewCell.notificationContainerWidthConstraint.constant = 28
+                reviewCell.notificationIcon.hidden = false
+            } else {
+                reviewCell.notificationContainerWidthConstraint.constant = 0
+                reviewCell.notificationIcon.hidden = true
             }
-
             reviewCell.reviewTextLabel?.text = itemDetail.label
             reviewCell.reviewDetailLabel?.text = rev.revCount
-
-            reviewCell.reviewBarWidthConstraint.constant = CGFloat(rev.revBarLength) / 5.0 * reviewCell.reviewBarView.frame.width
-            reviewCell.reviewBarView.maskView = UIImageView(image: UIImage(named: "star"))
+            reviewCell.setReviewBarLength(rev.revBarLength)
 
         case let .Availability(availability, shouldNotify):
 
-            guard let avail = availability.first else {
+            guard let traceableCell = cell as? TraceableTableViewCell, let avail = availability.first else {
                 return
             }
 
-            cell.textLabel?.text = itemDetail.label
-            cell.detailTextLabel?.text = avail.data
+            if shouldNotify {
+                traceableCell.notificationContainerWidthConstraint.constant = 28
+                traceableCell.notificationIcon.hidden = false
+            } else {
+                traceableCell.notificationContainerWidthConstraint.constant = 0
+                traceableCell.notificationIcon.hidden = true
+            }
+            traceableCell.notificationContainerWidthConstraint.constant = shouldNotify ? 28 : 0
+            traceableCell.traceableTextLabel?.text = itemDetail.label
+            traceableCell.traceableDetailLabel?.text = avail.data
         }
         cell.selectionStyle = .None
     }
@@ -236,10 +340,10 @@ extension ItemDetailViewController: UITableViewDelegate, UITableViewDataSource {
             cell = tableView.dequeueReusableCellWithIdentifier("StaticDetailCell", forIndexPath: indexPath)
 
         case .Price, .Availability:
-            cell = tableView.dequeueReusableCellWithIdentifier("TrackableDetailCell", forIndexPath: indexPath)
+            cell = tableView.dequeueReusableCellWithIdentifier("TraceableDetailCell", forIndexPath: indexPath)
 
         case .Review:
-            cell = tableView.dequeueReusableCellWithIdentifier("ReviewDetailCell", forIndexPath: indexPath) as! ReviewTableViewCell
+            cell = tableView.dequeueReusableCellWithIdentifier("ReviewDetailCell", forIndexPath: indexPath)
         }
         configureCell(cell, withItemDetail: itemDetail)
 
@@ -251,5 +355,4 @@ extension ItemDetailViewController: UITableViewDelegate, UITableViewDataSource {
         performSegueWithIdentifier("DetailHistorySegue", sender: itemDetails[indexPath.row])
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
-
 }

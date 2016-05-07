@@ -12,11 +12,14 @@ import CoreData
 class BrowserViewController: UIViewController {
 
     @IBOutlet weak var itemCollectionView: UICollectionView!
-    @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
+    @IBOutlet weak var observedItemCollectionView: UICollectionView!
+    @IBOutlet weak var itemflowLayout: UICollectionViewFlowLayout!
+    @IBOutlet weak var observedItemflowLayout: UICollectionViewFlowLayout!
 
     @IBOutlet weak var emptyPlaceholderView: UIView!
 
     var items = [Item]()
+    var observedItems = [Item]()
     var searchSetting = SearchSetting.unarchivedInstance() ?? SearchSetting()
 
     private let itemSpacer: CGFloat = 8.0
@@ -32,18 +35,30 @@ class BrowserViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
 
-        items = fetchStoredItems()
         setupViewInsets(itemCollectionView)
+        setupViewInsets(observedItemCollectionView)
 
         itemCollectionView.delegate = self
         itemCollectionView.dataSource = self
+
+        observedItemCollectionView.delegate = self
+        observedItemCollectionView.dataSource = self
+    }
+
+    override func viewWillAppear(animated: Bool) {
+
+        items = Item.fetchStoredItems(sharedContext)
+        observedItems = fetchStoredObservedItems()
+
         itemCollectionView.reloadData()
+        observedItemCollectionView.reloadData()
     }
 
     override func viewDidLayoutSubviews() {
 
         super.viewDidLayoutSubviews()
-        recalculateItemDimension(flowLayout)
+        recalculateItemDimension(itemflowLayout)
+        recalculateItemDimension(observedItemflowLayout)
     }
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -76,6 +91,12 @@ class BrowserViewController: UIViewController {
                 return
             }
 
+            if item.observeFlg {
+                item.readFlg = true
+                CoreDataStackManager.sharedInstance().saveContext()
+            }
+
+            detailVc.observedItemCount = observedItems.count
             detailVc.selectedItem = item
         }
     }
@@ -104,15 +125,37 @@ class BrowserViewController: UIViewController {
         }
     }
 
-    private func fetchStoredItems() -> [Item] {
+    @IBAction func updateButtonTapped(sender: UIBarButtonItem) {
 
-        let fetchRequest = NSFetchRequest(entityName: "Item")
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: true)]
-        do {
-            return try sharedContext.executeFetchRequest(fetchRequest) as! [Item]
-        } catch  let error as NSError {
-            print("Error in fecthing items: \(error)")
-            return [Item]()
+        let itemCodes = observedItems.map {
+            $0.itemCode
+        }
+
+        let loaderView = LoaderView(frame: view.frame)
+        view.addSubview(loaderView)
+
+        RakutenClient.sharedInstance().getItem(withItemCodes: itemCodes) { result in
+
+            self.removeViewAsync(loaderView)
+
+            switch result {
+            case let .Success(updateItems):
+
+                self.observedItems.forEach { it in
+                    it.updateItem(updateItems[it.itemCode]!, context: self.sharedContext)
+                }
+
+                dispatch_async(dispatch_get_main_queue(), {
+
+                    self.observedItemCollectionView.reloadData()
+                    CoreDataStackManager.sharedInstance().saveContext()
+                })
+
+            case let .Error(err):
+
+                let msg = RakutenClient.generateErrorMessage(err)
+                self.displayErrorAsync(msg)
+            }
         }
     }
 
@@ -188,6 +231,12 @@ class BrowserViewController: UIViewController {
                 }
             }
         }
+
+        if item.readFlg {
+            cell.notificationIcon?.hidden = true
+        } else {
+            cell.notificationIcon?.hidden = false
+        }
     }
 
 }
@@ -196,22 +245,45 @@ extension BrowserViewController: UICollectionViewDelegate, UICollectionViewDataS
 
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 
-        return items.count
+        if collectionView == itemCollectionView {
+            return items.count
+        }
+
+        if collectionView == observedItemCollectionView {
+            return observedItems.count
+        }
+
+        return 0
     }
 
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
 
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("ItemCollectionCell", forIndexPath: indexPath) as! ItemCollectionViewCell
 
-        let item = items[indexPath.item]
-        configureCell(cell, withItem: item)
+        if collectionView == itemCollectionView {
+
+            let item = items[indexPath.item]
+            configureCell(cell, withItem: item)
+        }
+
+        if collectionView == observedItemCollectionView {
+
+            let observedItem = observedItems[indexPath.item]
+            configureCell(cell, withItem: observedItem)
+        }
 
         return cell
     }
 
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
 
-        performSegueWithIdentifier("BrowserDetailSegue", sender: items[indexPath.item])
+        if collectionView == itemCollectionView {
+            performSegueWithIdentifier("BrowserDetailSegue", sender: items[indexPath.item])
+        }
+
+        if collectionView == observedItemCollectionView {
+            performSegueWithIdentifier("BrowserDetailSegue", sender: observedItems[indexPath.item])
+        }
         collectionView.deselectItemAtIndexPath(indexPath, animated: true)
     }
 }

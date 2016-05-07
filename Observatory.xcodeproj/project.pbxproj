@@ -10,6 +10,7 @@
 		490738531CBD376800DD8D6C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 490738511CBD376800DD8D6C /* Main.storyboard */; };
 		490738571CBD3D6C00DD8D6C /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 490738551CBD3D6C00DD8D6C /* Model.xcdatamodeld */; };
 		49137EC01CC7A3A70051EF8E /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49137EBF1CC7A3A70051EF8E /* Category.swift */; };
+		4918C7341CDB50480049363E /* ItemNameTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4918C7331CDB50480049363E /* ItemNameTableViewCell.swift */; };
 		4919B08A1CCB424F00F0C125 /* LoaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4919B0891CCB424F00F0C125 /* LoaderView.swift */; };
 		4919B08C1CCB553B00F0C125 /* SearchSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4919B08B1CCB553B00F0C125 /* SearchSetting.swift */; };
 		492CCA391CBE7E5100EAD115 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 492CCA381CBE7E5100EAD115 /* Item.swift */; };
@@ -38,12 +39,14 @@
 		49E131D61CBA50E000067920 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E131D51CBA50E000067920 /* Constants.swift */; };
 		49E131D81CBA582F00067920 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E131D71CBA582F00067920 /* ImageCache.swift */; };
 		49EEA2B01CD613F3002AADF8 /* ObserverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EEA2AF1CD613F3002AADF8 /* ObserverViewController.swift */; };
+		49F822E71CDB7E4100CCF697 /* TraceableTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F822E61CDB7E4100CCF697 /* TraceableTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		490738521CBD376800DD8D6C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Observatory/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		490738561CBD3D6C00DD8D6C /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		49137EBF1CC7A3A70051EF8E /* Category.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		4918C7331CDB50480049363E /* ItemNameTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ItemNameTableViewCell.swift; sourceTree = "<group>"; };
 		4919B0891CCB424F00F0C125 /* LoaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoaderView.swift; sourceTree = "<group>"; };
 		4919B08B1CCB553B00F0C125 /* SearchSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchSetting.swift; sourceTree = "<group>"; };
 		492CCA381CBE7E5100EAD115 /* Item.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
@@ -74,6 +77,7 @@
 		49E131D51CBA50E000067920 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		49E131D71CBA582F00067920 /* ImageCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		49EEA2AF1CD613F3002AADF8 /* ObserverViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObserverViewController.swift; sourceTree = "<group>"; };
+		49F822E61CDB7E4100CCF697 /* TraceableTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TraceableTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,6 +179,8 @@
 				4919B0891CCB424F00F0C125 /* LoaderView.swift */,
 				495946811CD35B61004DCEB8 /* PlaceholderView.swift */,
 				49DA800E1CBBCBFF00FF9111 /* ItemCollectionViewCell.swift */,
+				4918C7331CDB50480049363E /* ItemNameTableViewCell.swift */,
+				49F822E61CDB7E4100CCF697 /* TraceableTableViewCell.swift */,
 				49D0A80C1CD97A2E00FD6B95 /* ReviewTableViewCell.swift */,
 				4962A7551CC65C2000102942 /* InsetTextField.swift */,
 			);
@@ -269,6 +275,7 @@
 				49D0A8101CD9B05700FD6B95 /* PriceHistory.swift in Sources */,
 				4919B08C1CCB553B00F0C125 /* SearchSetting.swift in Sources */,
 				4997FF9A1CBA937700224E21 /* BrowserViewController.swift in Sources */,
+				4918C7341CDB50480049363E /* ItemNameTableViewCell.swift in Sources */,
 				49E131D61CBA50E000067920 /* Constants.swift in Sources */,
 				496AC04B1CB920B600D91089 /* ViewController.swift in Sources */,
 				49D0A80D1CD97A2E00FD6B95 /* ReviewTableViewCell.swift in Sources */,
@@ -287,6 +294,7 @@
 				49DA800D1CBBCA2500FF9111 /* UIViewController+Async.swift in Sources */,
 				495946801CD344DA004DCEB8 /* ItemDetail.swift in Sources */,
 				495946821CD35B61004DCEB8 /* PlaceholderView.swift in Sources */,
+				49F822E71CDB7E4100CCF697 /* TraceableTableViewCell.swift in Sources */,
 				49E131D41CBA4EA600067920 /* RakutenClient.swift in Sources */,
 				498EE6B31CD7AF4A00F6A71D /* ItemHistoryViewController.swift in Sources */,
 			);

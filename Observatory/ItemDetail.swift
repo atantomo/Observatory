@@ -39,24 +39,23 @@ class ItemDetail {
     let label: String
     let detailType: ItemDetailType
 
-    static var sharedContext: NSManagedObjectContext {
-
-        return CoreDataStackManager.sharedInstance().managedObjectContext
-    }
-    
-
     init(label: String, detailType: ItemDetailType) {
 
         self.label = label
         self.detailType = detailType
     }
 
-    static func generateTableContent(item: Item) -> [ItemDetail] {
+    static func generateTableContent(item: Item, context: NSManagedObjectContext) -> [ItemDetail] {
+
+        let priceHistories = PriceHistory.fetchStoredHistoryForItem(item, context: context)
+        let reviewHistories = ReviewHistory.fetchStoredHistoryForItem(item, context: context)
+        let availabilityHistories = AvailabilityHistory.fetchStoredHistoryForItem(item, context: context)
+
 
         let itemName = getDisplayItemName(item.itemName)
-        let price = generatePriceHistory(item)
-        let rev = generateReviewHistory(item)
-        let avail = generateDispAvailabilityHistory(item)
+        let price = generateDisplayPriceHistories(item, histories: priceHistories)
+        let rev = generateDisplayReviewHistory(item, histories: reviewHistories)
+        let avail = generateDispAvailabilityHistory(item, histories: availabilityHistories)
 
         let detail = [
             ItemDetail(label: "", detailType: .ItemName(displayText: itemName)),
@@ -67,106 +66,61 @@ class ItemDetail {
         return detail
     }
 
-    static func generatePriceHistory(item: Item) -> (displayTexts: [(data: String, time: String)], shouldNotify: Bool) {
+    static func generateDisplayPriceHistories(item: Item, histories: [PriceHistory]) -> (displayTexts: [(data: String, time: String)], shouldNotify: Bool) {
 
         var shouldNotify = false
-        let priceHist = fetchStoredPriceHistory(item)
-
-        for hist in priceHist {
+        for hist in histories {
             if hist.readFlg == false {
                 shouldNotify = true
                 break
             }
         }
 
-        var dispPrice = priceHist.map { hist in
+        var dispPrice = histories.map { hist in
             (data: getDisplayPrice(hist.itemPrice), time: dateFormatter.stringFromDate(hist.timestamp))
         }
+
         dispPrice.insert((data: getDisplayPrice(item.itemPrice), time: dateFormatter.stringFromDate(item.timestamp)), atIndex: 0)
 
         return (dispPrice, shouldNotify)
     }
 
-    static func generateReviewHistory(item: Item) -> (displayTexts: [(revCount: String, revBarLength: Double, time: String)], shouldNotify: Bool) {
+    static func generateDisplayReviewHistory(item: Item, histories: [ReviewHistory]) -> (displayTexts: [(revCount: String, revBarLength: Double, time: String)], shouldNotify: Bool) {
 
         var shouldNotify = false
-        let reviewHist = fetchStoredReviewHistory(item)
-
-        for hist in reviewHist {
+        for hist in histories {
             if hist.readFlg == false {
                 shouldNotify = true
                 break
             }
         }
 
-        var dispRev = reviewHist.map { hist in
+        var dispRev = histories.map { hist in
             (revCount: getDisplayReviewCount(hist.reviewCount), revBarLength: getRelativeWidth(hist.reviewAverage), time: dateFormatter.stringFromDate(hist.timestamp))
         }
+
         dispRev.insert((revCount: getDisplayReviewCount(item.reviewCount), revBarLength: getRelativeWidth(item.reviewAverage), time: dateFormatter.stringFromDate(item.timestamp)), atIndex: 0)
 
         return (dispRev, shouldNotify)
     }
 
-    static func generateDispAvailabilityHistory(item: Item) -> (displayTexts: [(data: String, time: String)], shouldNotify: Bool) {
+    static func generateDispAvailabilityHistory(item: Item, histories: [AvailabilityHistory]) -> (displayTexts: [(data: String, time: String)], shouldNotify: Bool) {
 
         var shouldNotify = false
-        let availabilityHist = fetchStoredAvailabilityHistory(item)
-
-        for hist in availabilityHist {
+        for hist in histories {
             if hist.readFlg == false {
                 shouldNotify = true
                 break
             }
         }
 
-        var dispAvail = availabilityHist.map { hist in
+        var dispAvail = histories.map { hist in
             (data: getDisplayAvailability(hist.availability), time: dateFormatter.stringFromDate(hist.timestamp))
         }
+
         dispAvail.insert((data: getDisplayAvailability(item.availability), time: dateFormatter.stringFromDate(item.timestamp)), atIndex: 0)
 
         return (dispAvail, shouldNotify)
-    }
-
-    static private func fetchStoredPriceHistory(item: Item) -> [PriceHistory] {
-
-        let fetchRequest = NSFetchRequest(entityName: "PriceHistory")
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
-        fetchRequest.predicate = NSPredicate(format: "item == %@", item)
-
-        do {
-            return try sharedContext.executeFetchRequest(fetchRequest) as! [PriceHistory]
-        } catch  let error as NSError {
-            print("Error in fecthing items: \(error)")
-            return [PriceHistory]()
-        }
-    }
-
-    static private func fetchStoredReviewHistory(item: Item) -> [ReviewHistory] {
-
-        let fetchRequest = NSFetchRequest(entityName: "ReviewHistory")
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
-        fetchRequest.predicate = NSPredicate(format: "item == %@", item)
-
-        do {
-            return try sharedContext.executeFetchRequest(fetchRequest) as! [ReviewHistory]
-        } catch  let error as NSError {
-            print("Error in fecthing items: \(error)")
-            return [ReviewHistory]()
-        }
-    }
-
-    static private func fetchStoredAvailabilityHistory(item: Item) -> [AvailabilityHistory] {
-
-        let fetchRequest = NSFetchRequest(entityName: "AvailabilityHistory")
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
-        fetchRequest.predicate = NSPredicate(format: "item == %@", item)
-
-        do {
-            return try sharedContext.executeFetchRequest(fetchRequest) as! [AvailabilityHistory]
-        } catch  let error as NSError {
-            print("Error in fecthing items: \(error)")
-            return [AvailabilityHistory]()
-        }
     }
 
     static func getDisplayItemName(itemName: String?) -> String {
