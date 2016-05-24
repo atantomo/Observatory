@@ -22,18 +22,18 @@ The main feature of the app is creating a snapshot of search results to record t
 
 Here is a more detailed breakdown of the features by view controller:
 
-View Controller | Feature
---------------- | -------
-Browser | Displays the list of search result from 'Search setting' view controller. This is used as the base snapshot to compare against when the 'Update' button on the bar is pressed
-| After pressing the 'Update' button, user will be notified of any updates on the items within the current snapshot
-| Items are divided into 3 categories, namely 'New' (items appeared for the first time), 'Observing' (currently observed items), 'Out of sight' (items that have fell out of rank / outside of the current search scope)
-Search setting | Option to specify name and category of item to search
-| Saves search setting on a successful search. Any other input data that does not reach this point _will be discarded_
-Item detail | Displays the attributes of the selected item from 'Browser' view controller.
-| Dynamically loads the original version of the item image (larger size)
-| Shows the recent change on attributes (if there's any) visually using icons
-| A button that directs user to the product page on the e-commerce site
-Item history | Displays the full change history of the selected attribute from 'Item detail' view controller
+|View Controller | Feature|
+|--------------- | -------|
+|Browser | Displays the list of search result from 'Search setting' view controller. This is used as the base snapshot to compare against when the 'Update' button on the bar is pressed|
+|| After pressing the 'Update' button, user will be notified of any updates on the items within the current snapshot|
+|| Items are divided into 3 categories, namely 'New' (items appeared for the first time), 'Observing' (currently observed items), 'Out of sight' (items that have fell out of rank / outside of the current search scope)|
+|Search setting | Option to specify name and category of item to search|
+|| Saves search setting on a successful search. Any other input data that does not reach this point _will be discarded_|
+|Item detail | Displays the attributes of the selected item from 'Browser' view controller.|
+|| Dynamically loads the original version of the item image (larger size)|
+|| Shows the recent change on attributes (if there's any) visually using icons|
+|| A button that directs user to the product page on the e-commerce site|
+|Item history | Displays the full change history of the selected attribute from 'Item detail' view controller|
 
 ## Test
 Because the app observe the changes of real-time data, it may be difficult to examine them in a short period of time. One of the easier ways to test this is to execute a query on the SQLite database, such as:
