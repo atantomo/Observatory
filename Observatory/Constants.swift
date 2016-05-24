@@ -6,6 +6,8 @@
 //  Copyright © 2016年 Andrew Tantomo. All rights reserved.
 //
 
+import UIKit
+
 struct Constants {
 
     struct Rakuten {
@@ -14,29 +16,35 @@ struct Constants {
         static let ApiKey = "API_KEY_HERE"
 
         struct ApiName {
+
             static let Item = "IchibaItem/"
             static let Genre = "IchibaGenre/"
         }
 
         struct Methods {
+
             static let Search = "Search/"
         }
 
         struct ApiVersion {
+
             static let Version = "20140222/"
         }
 
         struct JSONBody {
+
             static let Format = "format"
             static let Keyword = "keyword"
             static let ItemCode = "itemCode"
             static let GenreId = "genreId"
             static let GenrePath = "genrePath"
             static let PerPage = "hits"
+            static let Sort = "sort"
             static let AppId = "applicationId"
         }
 
         struct JSONResponse {
+
             static let Items = "Items"
             static let Item = "Item"
 
@@ -64,6 +72,13 @@ struct Constants {
 
         static let Keyword = "keyword"
         static let Category = "category"
+    }
+
+    struct Size {
+
+        static let Small: CGFloat = 4.0
+        static let Medium: CGFloat = 8.0
+        static let Large: CGFloat = 16.0
     }
     
 }

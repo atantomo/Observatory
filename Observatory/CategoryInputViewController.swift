@@ -34,8 +34,12 @@ class CategoryInputViewController: UITableViewController {
         categoryTableView.delegate = self
         categoryTableView.dataSource = self
 
+        let loaderView = LoaderView(frame: view.frame)
+        view.addSubview(loaderView)
 
         RakutenClient.sharedInstance().getCategory { result in
+
+            self.removeViewAsync(loaderView)
 
             switch result {
             case let .Success(categories):
@@ -55,7 +59,7 @@ class CategoryInputViewController: UITableViewController {
         }
     }
 
-    // MARK: Workaround
+    // MARK: Workaround to avoid UISearchController-related error
     deinit{
 
         if let superView = searchController.view {
@@ -84,7 +88,6 @@ class CategoryInputViewController: UITableViewController {
         delegate?.categoryInputViewController(self, didPickCategory: category)
 
         navigationController?.popViewControllerAnimated(true)
-        
         return
     }
 }
@@ -96,12 +99,14 @@ extension CategoryInputViewController: UISearchResultsUpdating {
         guard let lowercaseInputText = searchController.searchBar.text?.lowercaseString else {
             return
         }
-
         filteredCategories = CategoryData.data.filter { category in
 
+            let noInput = lowercaseInputText.isEmpty
+
             let lowercaseCategoryText = category.name.lowercaseString
-            let isMatch = lowercaseCategoryText.containsString(lowercaseInputText)
-            return lowercaseInputText.isEmpty || isMatch
+            let isAMatch = lowercaseCategoryText.containsString(lowercaseInputText)
+            
+            return noInput || isAMatch
         }
         
         categoryTableView.reloadData()

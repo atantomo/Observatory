@@ -22,6 +22,13 @@ class Category : NSObject, NSCoding {
         name = dictionary[Constants.Rakuten.JSONResponse.GenreName] as! String
     }
 
+    required init(coder unarchiver: NSCoder) {
+        super.init()
+
+        id = unarchiver.decodeIntegerForKey(Constants.Rakuten.JSONResponse.GenreId)
+        name = unarchiver.decodeObjectForKey(Constants.Rakuten.JSONResponse.GenreName) as! String
+    }
+
     static func generateAllCategory() -> Category {
 
         let all: [String : AnyObject] = [
@@ -47,17 +54,9 @@ class Category : NSObject, NSCoding {
         archiver.encodeInteger(id, forKey: Constants.Rakuten.JSONResponse.GenreId)
         archiver.encodeObject(name, forKey: Constants.Rakuten.JSONResponse.GenreName)
     }
-
-    required init(coder unarchiver: NSCoder) {
-        super.init()
-
-        id = unarchiver.decodeIntegerForKey(Constants.Rakuten.JSONResponse.GenreId)
-        name = unarchiver.decodeObjectForKey(Constants.Rakuten.JSONResponse.GenreName) as! String
-    }
-
 }
 
 class CategoryData {
 
-    static var data: [Category] = Array()
+    static var data = [Category]()
 }

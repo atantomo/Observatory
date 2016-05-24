@@ -10,14 +10,24 @@ import UIKit
 
 extension UIViewController {
 
-    func displayErrorAsync(errorString: String?) {
+    func displayAlertAsync(title: String, errorString: String?) {
 
         dispatch_async(dispatch_get_main_queue(), {
-            let alertCtrl = UIAlertController(title: "Error", message: errorString, preferredStyle: .Alert)
+            let alertCtrl = UIAlertController(title: title, message: errorString, preferredStyle: .Alert)
             let okAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
             alertCtrl.addAction(okAction)
             self.presentViewController(alertCtrl, animated: true, completion: nil)
         })
+    }
+
+    func displayErrorAsync(errorString: String?) {
+
+        displayAlertAsync("Error", errorString: errorString)
+    }
+
+    func displayNoticeAsync(errorString: String?) {
+
+        displayAlertAsync("Notice", errorString: errorString)
     }
 
     func removeViewAsync(view: UIView) {

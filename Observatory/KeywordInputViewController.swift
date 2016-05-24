@@ -10,7 +10,7 @@ import UIKit
 
 protocol KeywordInputViewControllerDelegate {
 
-    func keywordInputViewController(keywordInput: KeywordInputViewController, didInputKeyword keyword: String?)
+    func keywordInputViewController(keywordInput: KeywordInputViewController, didInputKeyword keyword: String)
 }
 
 class KeywordInputViewController: UITableViewController {
@@ -32,6 +32,7 @@ extension KeywordInputViewController: UITextFieldDelegate {
 
     func textFieldDidEndEditing(textField: UITextField) {
 
-        delegate?.keywordInputViewController(self, didInputKeyword: textField.text)
+        delegate?.keywordInputViewController(self, didInputKeyword: textField.text!)
     }
+    
 }

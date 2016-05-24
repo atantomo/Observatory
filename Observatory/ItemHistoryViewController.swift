@@ -15,7 +15,6 @@ class ItemHistoryViewController: UITableViewController {
 
     var selectedDetailType: ItemDetailType!
 
-
     override func viewDidLoad() {
 
         super.viewDidLoad()
@@ -31,56 +30,51 @@ class ItemHistoryViewController: UITableViewController {
         navigationController?.navigationBar.barStyle = .Default
     }
 
-    private func configureCell(cell: UITableViewCell, withItemHistory itemHistory: ItemDetailType, atIndexPath indexPath: NSIndexPath) {
+    private func configureTraceableCell(cell: TraceableTableViewCell, withData data: [ItemDisplay], atIndexPath indexPath: NSIndexPath) {
 
-        switch itemHistory {
+        let traceableDetail = data[indexPath.row]
 
-        case let .Price(price, _):
-
-            let priceHistory = price[indexPath.row]
-            cell.textLabel?.text = priceHistory.data
-            cell.detailTextLabel?.text =  priceHistory.time
-
-        case let .Review(review, _):
-
-            let reviewHistory = review[indexPath.row]
-
-            guard let reviewCell = cell as? ReviewTableViewCell else {
-                return
-            }
-            reviewCell.reviewTextLabel?.text = reviewHistory.revCount
-            reviewCell.reviewDetailLabel?.text = reviewHistory.time
-            reviewCell.setReviewBarLength(reviewHistory.revBarLength)
-
-        case let .Availability(availability, _):
-
-            let availabilityHistory = availability[indexPath.row]
-            cell.textLabel?.text = availabilityHistory.data
-            cell.detailTextLabel?.text =  availabilityHistory.time
-
+        switch traceableDetail.direction {
+        case .Up:
+            cell.changeDirectionIcon.hidden = false
+        case .Down:
+            cell.changeDirectionIcon.transform = CGAffineTransformMakeScale(1, -1)
+            cell.changeDirectionIcon.hidden = false
         default:
-            break
+            cell.changeDirectionIcon.hidden = true
         }
-        cell.selectionStyle = .None
+
+        cell.traceableTextLabel?.text = traceableDetail.data
+        cell.traceableDetailLabel?.text = traceableDetail.time
     }
+
+    private func configureReviewCell(cell: ReviewTableViewCell, withData data: [ItemDisplay], atIndexPath indexPath: NSIndexPath) {
+
+        guard let reviewDetail = data[indexPath.row] as? ReviewDisplay else {
+            return
+        }
+
+        switch reviewDetail.direction {
+        case .Up:
+            cell.changeDirectionIcon.hidden = false
+        case .Down:
+            cell.changeDirectionIcon.transform = CGAffineTransformMakeScale(1, -1)
+            cell.changeDirectionIcon.hidden = false
+        default:
+            cell.changeDirectionIcon.hidden = true
+        }
+
+        cell.reviewTextLabel?.text = reviewDetail.data
+        cell.reviewDetailLabel?.text = reviewDetail.time
+        cell.setReviewBarLength(reviewDetail.reviewBarRelativeLength)
+    }
+
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 
-        guard let hist = selectedDetailType else {
-            return 0
-        }
-
-        switch hist {
-
-        case let .Price(price, _):
-            return price.count
-
-        case let .Review(review, _):
-            return review.count
-
-        case let .Availability(availability, _):
-            return availability.count
-
+        switch selectedDetailType! {
+        case let .Traceable(data):
+            return data.count
         default:
             return 0
         }
@@ -88,25 +82,22 @@ class ItemHistoryViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 
-        guard let hist = selectedDetailType else {
-            return UITableViewCell()
-        }
+        switch selectedDetailType! {
+        case let .Traceable(data) where data.first is ReviewDisplay:
 
-        var cell = UITableViewCell()
+            let cell = tableView.dequeueReusableCellWithIdentifier("ReviewHistoryCell", forIndexPath: indexPath) as! ReviewTableViewCell
+            configureReviewCell(cell, withData: data, atIndexPath: indexPath)
+            return cell
 
-        switch hist {
-        case .Availability, .Price:
-            cell = tableView.dequeueReusableCellWithIdentifier("TraceableHistoryCell", forIndexPath: indexPath)
+        case let .Traceable(data):
 
-        case .Review:
-            cell = tableView.dequeueReusableCellWithIdentifier("ReviewHistoryCell", forIndexPath: indexPath)
+            let cell = tableView.dequeueReusableCellWithIdentifier("TraceableHistoryCell", forIndexPath: indexPath)  as! TraceableTableViewCell
+            configureTraceableCell(cell, withData: data, atIndexPath: indexPath)
+            return cell
 
         default:
-            break
+            return UITableViewCell()
         }
-        configureCell(cell, withItemHistory: hist, atIndexPath: indexPath)
-
-        return cell
     }
 
     override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {

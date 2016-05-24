@@ -9,15 +9,15 @@
 import UIKit
 import CoreData
 
-class PriceHistory: NSManagedObject {
+final class PriceHistory: NSManagedObject, ItemHistory {
 
     @NSManaged var itemPrice: NSNumber?
     @NSManaged var timestamp: NSDate
-    @NSManaged var readFlg: Bool
     
     @NSManaged var item: Item?
 
-    var comparableHistory: NSNumber? {
+    var comparableData: NSNumber? {
+        
         return itemPrice
     }
 
@@ -33,7 +33,6 @@ class PriceHistory: NSManagedObject {
 
         self.itemPrice = itemPrice
         timestamp = NSDate()
-        readFlg = false
     }
 
     static func fetchStoredHistoryForItem(item: Item, context: NSManagedObjectContext) -> [PriceHistory] {
@@ -49,7 +48,23 @@ class PriceHistory: NSManagedObject {
             return [PriceHistory]()
         }
     }
+
+    func makeDisplayData(previous: PriceHistory?) -> ItemDisplay {
+
+        return PriceDisplay(history: self, previous: previous)
+    }
 }
 
+struct PriceDisplay: ItemDisplay {
 
+    let data: String
+    let time: String
+    let direction: ChangeDirection
 
+    init(history: PriceHistory, previous: PriceHistory?) {
+
+        self.data = Formatter.getDisplayPrice(history.itemPrice)
+        self.time = Formatter.getDisplayDate(history.timestamp)
+        self.direction = Formatter.getChangeDirection(history, previous: previous)
+    }
+}

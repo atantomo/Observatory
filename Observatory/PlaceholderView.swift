@@ -36,7 +36,7 @@ class PlaceholderView: UIView {
     private func generateOpaqueBackground() -> UIView {
 
         let view = UIView(frame: frame)
-        view.backgroundColor = UIColor.lightGrayColor()
+        view.backgroundColor = UIColor.darkGrayColor()
 
         return view
     }

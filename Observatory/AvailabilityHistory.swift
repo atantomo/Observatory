@@ -9,13 +9,17 @@
 import UIKit
 import CoreData
 
-class AvailabilityHistory: NSManagedObject {
+final class AvailabilityHistory: NSManagedObject, ItemHistory {
 
     @NSManaged var availability: NSNumber?
     @NSManaged var timestamp: NSDate
-    @NSManaged var readFlg: Bool
 
     @NSManaged var item: Item?
+
+    var comparableData: NSNumber? {
+        
+        return availability
+    }
 
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
 
@@ -29,7 +33,6 @@ class AvailabilityHistory: NSManagedObject {
 
         self.availability = availability
         timestamp = NSDate()
-        readFlg = false
     }
 
     static func fetchStoredHistoryForItem(item: Item, context: NSManagedObjectContext) -> [AvailabilityHistory] {
@@ -44,5 +47,24 @@ class AvailabilityHistory: NSManagedObject {
             print("Error in fecthing items: \(error)")
             return [AvailabilityHistory]()
         }
+    }
+
+    func makeDisplayData(previous: AvailabilityHistory?) -> ItemDisplay {
+
+        return AvailabilityDisplay(history: self, previous: previous)
+    }
+}
+
+struct AvailabilityDisplay: ItemDisplay {
+
+    let data: String
+    let time: String
+    let direction: ChangeDirection
+
+    init(history: AvailabilityHistory, previous: AvailabilityHistory?) {
+
+        self.data = Formatter.getDisplayAvailability(history.availability)
+        self.time = Formatter.getDisplayDate(history.timestamp)
+        self.direction = Formatter.getChangeDirection(history, previous: previous)
     }
 }

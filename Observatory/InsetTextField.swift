@@ -22,6 +22,11 @@ class InsetTextField: UITextField {
         return bounds.trimWidth(left: inset, right: inset)
     }
 
+    override func placeholderRectForBounds(bounds: CGRect) -> CGRect {
+
+        return bounds.trimWidth(left: inset, right: inset)
+    }
+
     override func clearButtonRectForBounds(bounds: CGRect) -> CGRect {
 
         let buttonRect = super.clearButtonRectForBounds(bounds)

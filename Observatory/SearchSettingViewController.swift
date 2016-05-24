@@ -10,15 +10,10 @@ import UIKit
 
 protocol SearchSettingViewControllerDelegate {
 
-    func searchSettingViewController(searchSetting: SearchSettingViewController, didRetrieveResult result: [[String: AnyObject]]?)
+    func searchSettingViewController(searchSetting: SearchSettingViewController, didRetrieveResult result: [String: [String: AnyObject]]?)
 }
 
 class SearchSettingViewController: UITableViewController {
-
-
-    @IBOutlet weak var cancelBarButton: UIBarButtonItem!
-    @IBOutlet weak var saveBarButton: UIBarButtonItem!
-
 
     @IBOutlet weak var keywordLabel: UILabel!
     @IBOutlet weak var categoryLabel: UILabel!
@@ -26,11 +21,13 @@ class SearchSettingViewController: UITableViewController {
     var delegate: SearchSettingViewControllerDelegate?
 
     var searchSetting = SearchSetting()
+    var keywordCache = String()
+    var categoryCache = Category.generateAllCategory()
 
     override func viewDidLoad() {
 
-        setKeywordLabelText(searchSetting.keyword)
-        setCategoryLabelText(searchSetting.category.name)
+        setKeywordData(searchSetting.keyword)
+        setCategoryData(searchSetting.category)
     }
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -40,8 +37,7 @@ class SearchSettingViewController: UITableViewController {
             guard let vc = segue.destinationViewController as? KeywordInputViewController else {
                 return
             }
-            
-            vc.keyword = searchSetting.keyword
+            vc.keyword = keywordCache
             vc.delegate = self
         }
 
@@ -61,21 +57,43 @@ class SearchSettingViewController: UITableViewController {
 
     @IBAction func saveBarButtonTapped(sender: UIBarButtonItem) {
 
+        if (GroupedItemData.data.flatMap { $0 }).isEmpty {
+            startSearchRequest(nil)
+
+        } else {
+            let alertCtrl = UIAlertController(title: "Warning", message: "Performing a new search will remove all existing data. Would you like to proceed?", preferredStyle: .Alert)
+
+            let okAction = UIAlertAction(title: "OK", style: .Default, handler: startSearchRequest)
+            let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+
+            alertCtrl.addAction(okAction)
+            alertCtrl.addAction(cancelAction)
+
+            self.presentViewController(alertCtrl, animated: true, completion: nil)
+        }
+    }
+
+    private func startSearchRequest(action: UIAlertAction?) {
+
         let loaderView = LoaderView(frame: view.frame)
         view.addSubview(loaderView)
 
-        let keyword = searchSetting.keyword
-        let catId = searchSetting.category.id
+        let keyword = keywordCache
+        let catId = categoryCache.id
 
-        RakutenClient.sharedInstance().getItem(withKeyword: keyword, genreId: catId) { result in
-            
+        RakutenClient.sharedInstance().getIndexedRawItem(withKeyword: keyword, genreId: catId) { result in
+
             self.removeViewAsync(loaderView)
 
             switch result {
             case let .Success(items):
 
-                self.delegate?.searchSettingViewController(self, didRetrieveResult: items)
+                self.searchSetting.keyword = self.keywordCache
+                self.searchSetting.category = self.categoryCache
+                self.searchSetting.save()
+
                 dispatch_async(dispatch_get_main_queue(), {
+                    self.delegate?.searchSettingViewController(self, didRetrieveResult: items)
                     self.dismissViewControllerAnimated(true) {}
                 })
             case let .Error(err):
@@ -86,35 +104,35 @@ class SearchSettingViewController: UITableViewController {
         }
     }
 
-    private func setKeywordLabelText(string: String) {
+    private func setKeywordData(string: String) {
 
         guard !string.isEmpty else {
             keywordLabel.text = "Not set"
             return
         }
         keywordLabel.text = string
+        keywordCache = string
     }
 
-    private func setCategoryLabelText(string: String) {
+    private func setCategoryData(category: Category) {
 
-        categoryLabel.text = string
+        categoryLabel.text = category.name
+        categoryCache = category
     }
 
 }
 
 extension SearchSettingViewController: KeywordInputViewControllerDelegate {
 
-    func keywordInputViewController(keywordInput: KeywordInputViewController, didInputKeyword keyword: String?) {
+    func keywordInputViewController(keywordInput: KeywordInputViewController, didInputKeyword keyword: String) {
 
-        guard let searchWord = keyword where !searchWord.isEmpty else {
+        if !keyword.isEmpty {
+            keywordLabel.text = keyword
+
+        } else {
             keywordLabel.text = "Not set"
-            return
         }
-
-        keywordLabel.text = searchWord
-
-        searchSetting.keyword = searchWord
-        searchSetting.save()
+        keywordCache = keyword
     }
 }
 
@@ -123,8 +141,6 @@ extension SearchSettingViewController: CategoryInputViewControllerDelegate {
     func categoryInputViewController(categoryInput: CategoryInputViewController, didPickCategory category: Category) {
 
         categoryLabel.text = category.name
-
-        searchSetting.category = category
-        searchSetting.save()
+        categoryCache = category
     }
 }

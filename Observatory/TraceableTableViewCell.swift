@@ -12,6 +12,6 @@ class TraceableTableViewCell: UITableViewCell {
 
     @IBOutlet weak var traceableTextLabel: UILabel!
     @IBOutlet weak var traceableDetailLabel: UILabel!
-    @IBOutlet weak var notificationIcon: UIImageView!
-    @IBOutlet weak var notificationContainerWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var changeDirectionIcon: UIImageView!
+    @IBOutlet weak var changeDirectionContainerWidthConstraint: NSLayoutConstraint!
 }

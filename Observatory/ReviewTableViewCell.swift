@@ -16,8 +16,8 @@ class ReviewTableViewCell: UITableViewCell {
     @IBOutlet weak var reviewBarView: UIView!
     @IBOutlet weak var emptyReviewBarView: UIView!
     @IBOutlet weak var reviewBarWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var notificationIcon: UIImageView!
-    @IBOutlet weak var notificationContainerWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var changeDirectionIcon: UIImageView!
+    @IBOutlet weak var changeDirectionIconContainerWidthConstraint: NSLayoutConstraint!
 
     private var starImageView: UIImageView {
 

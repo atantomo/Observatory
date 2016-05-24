@@ -8,26 +8,9 @@
 
 import UIKit
 
-extension Dictionary {
-
-    func retainTypeFilter(includeElement: Element -> Bool) -> Dictionary {
-
-        let filteredArray = self.filter { key, value in includeElement((key, value)) }
-
-        // convert the resulting tuple back into dictionary
-        var filteredDictionary = Dictionary()
-        filteredArray.forEach { result in
-            filteredDictionary[result.0] = result.1
-        }
-
-        return filteredDictionary
-    }
-}
-
-
 extension RakutenClient {
 
-    func getItem(withKeyword keyword: String, genreId: Int, completionHandler: (Result<[[String: AnyObject]]>) -> ()) {
+    func getIndexedRawItem(withKeyword keyword: String, genreId: Int, completionHandler: (Result<[String: [String: AnyObject]]>) -> ()) {
 
         let params = [
 
@@ -35,25 +18,45 @@ extension RakutenClient {
             Constants.Rakuten.JSONBody.Format: "json",
             Constants.Rakuten.JSONBody.Keyword: keyword,
             Constants.Rakuten.JSONBody.GenreId: String(genreId),
-            Constants.Rakuten.JSONBody.PerPage: "30"
+            Constants.Rakuten.JSONBody.PerPage: "30",
+            Constants.Rakuten.JSONBody.Sort: "standard"
         ]
 
-        let filteredParams = params.retainTypeFilter { !$1.isEmpty }
+        let inputError = validateSearchParamerter(params)
+        guard inputError == nil else {
 
-        taskForGETMethod(.Item, params: filteredParams) { result in
+            completionHandler(.Error(inputError!))
+            return
+        }
+
+        taskForGETMethod(.Item, params: params) { result in
 
             switch result {
 
             case let .Success(data):
 
-                guard let items = data[Constants.Rakuten.JSONResponse.Items] as? [[String: AnyObject]] else {
-                    print("Could not find Items key in data")
-                    completionHandler(.Error(ClientError.Data))
+                guard let wholeRawItems = data[Constants.Rakuten.JSONResponse.Items] as? [[String: AnyObject]] else {
+
+                    print("Could not find 'Items' key in data")
+                    completionHandler(.Error(ClientError.DataProcessing))
                     return
                 }
 
-                let item = items.flatMap { $0[Constants.Rakuten.JSONResponse.Item] as? [String: AnyObject] }
-                completionHandler(.Success(item))
+                let rawItems = wholeRawItems.flatMap { $0[Constants.Rakuten.JSONResponse.Item] as? [String: AnyObject] }
+
+                guard !rawItems.isEmpty else {
+                    completionHandler(.Error(ClientError.EmptyResult))
+                    return
+                }
+
+                var indexedRawItems = [String: [String: AnyObject]]()
+                rawItems.forEach { rawItem in
+                    if let itemCode = rawItem[Constants.Rakuten.JSONResponse.Code] as? String {
+                        indexedRawItems[itemCode] = rawItem
+                    }
+                }
+
+                completionHandler(.Success(indexedRawItems))
 
             case let .Error(error):
                 
@@ -62,54 +65,27 @@ extension RakutenClient {
         }
     }
 
-    func getItem(withItemCodes itemCodes: [String], completionHandler: (Result<[String: [String: AnyObject]]>) -> ()) {
+    private func validateSearchParamerter(params: [String: String]) -> InputError? {
 
-        var compoundItems = [String: [String: AnyObject]]()
-        var resultCount = 0
-        itemCodes.forEach { itemCode in
+        if let keyword = params[Constants.Rakuten.JSONBody.Keyword],
+            let category = params[Constants.Rakuten.JSONBody.GenreId] {
 
-            let params = [
+            let trimmedKeyword = keyword.stringByTrimmingCharactersInSet(.whitespaceCharacterSet())
+            let keywordIsValid = trimmedKeyword.isEmpty || trimmedKeyword.characters.count > 1
 
-                Constants.Rakuten.JSONBody.AppId: Constants.Rakuten.ApiKey,
-                Constants.Rakuten.JSONBody.Format: "json",
-                Constants.Rakuten.JSONBody.ItemCode: itemCode,
-                Constants.Rakuten.JSONBody.PerPage: "1"
-            ]
-
-            taskForGETMethod(.Item, params: params) { result in
-
-                resultCount += 1
-
-                switch result {
-
-                case let .Success(data):
-
-                    guard let items = data[Constants.Rakuten.JSONResponse.Items] as? [[String: AnyObject]] else {
-                        print("Could not find Items key in data")
-                        completionHandler(.Error(ClientError.Data))
-                        break
-                    }
-
-                    let item = items.flatMap { $0[Constants.Rakuten.JSONResponse.Item] as? [String: AnyObject] }
-
-                    let itemCode = item.first!["itemCode"] as! String
-                    compoundItems[itemCode] = item.first!
-
-                    if resultCount == itemCodes.count {
-
-
-                        print(compoundItems)
-                        completionHandler(.Success(compoundItems))
-                        break
-                    }
-
-                case let .Error(error):
-                    
-                    completionHandler(.Error(error))
-                    break
-                }
+            guard keywordIsValid else {
+                return .Invalid
             }
+
+            let categorySelected = category != String(Category.allCategoryId)
+            let parametersPresent = !trimmedKeyword.isEmpty || categorySelected
+
+            guard parametersPresent else {
+                return .MissingParameter
+            }
+            return nil
         }
+        return nil
     }
 
     func getCategory(completionHandler: (Result<[Category]>) -> ()) {
@@ -122,26 +98,26 @@ extension RakutenClient {
             Constants.Rakuten.JSONBody.GenrePath: "0"
         ]
 
-        let fileteredParams = params.retainTypeFilter { !$1.isEmpty }
-
-        taskForGETMethod(.Genre, params: fileteredParams) { result in
+        taskForGETMethod(.Genre, params: params) { result in
 
             switch result {
 
             case let .Success(data):
 
-                guard let categoriesDict = data[Constants.Rakuten.JSONResponse.Children] as? [[String: AnyObject]] else {
+                guard let wholeRawCategories = data[Constants.Rakuten.JSONResponse.Children] as? [[String: AnyObject]] else {
 
-                    print("Could not find Children key in data")
-                    completionHandler(.Error(ClientError.Data))
+                    print("Could not find 'Children' key in data")
+                    completionHandler(.Error(ClientError.DataProcessing))
                     return
                 }
 
-                let categoryDict = categoriesDict.flatMap { $0[Constants.Rakuten.JSONResponse.Child] as? [String: AnyObject] }
+                let rawCategories = wholeRawCategories.flatMap { $0[Constants.Rakuten.JSONResponse.Child] as? [String: AnyObject] }
 
                 var categories = [Category]()
+
+                // this is for appending 'All' category, NOT 'all categories'
                 categories.append(Category.generateAllCategory())
-                categories.appendContentsOf(Category.extractResult(categoryDict))
+                categories.appendContentsOf(Category.extractResult(rawCategories))
 
                 completionHandler(.Success(categories))
 
@@ -151,25 +127,4 @@ extension RakutenClient {
             }
         }
     }
-
-    private func pickRandom<T>(collection: [T], withDesiredCount desiredCount: Int) -> [T] {
-
-        var collection = collection
-        // make sure that the desired count does not exceed the real count
-        let resultCount = min(collection.count, desiredCount)
-
-        var randomizedCollection = [T]()
-
-        for _ in 0 ..< resultCount {
-
-            let randomIndex = Int(arc4random()) % collection.count
-            randomizedCollection.append(collection[randomIndex])
-
-            // remove current element from sample to ensure the element in the next loop is unique
-            collection.removeAtIndex(randomIndex)
-        }
-        
-        return randomizedCollection
-    }
-    
 }

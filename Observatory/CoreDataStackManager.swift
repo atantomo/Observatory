@@ -46,7 +46,7 @@ class CoreDataStackManager {
             dict[NSLocalizedFailureReasonErrorKey] = "There was an error creating or loading the application's saved data."
 
             dict[NSUnderlyingErrorKey] = error as NSError
-            let wrappedError = NSError(domain: "persistentStoreCoordinator", code: 9999, userInfo: dict)
+            let wrappedError = NSError(domain: "persistentStoreCoordinator", code: 0, userInfo: dict)
             NSLog("Unresolved error \(wrappedError), \(wrappedError.userInfo)")
             abort()
         }

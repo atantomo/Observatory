@@ -9,16 +9,16 @@
 import UIKit
 import CoreData
 
-class ReviewHistory: NSManagedObject {
+final class ReviewHistory: NSManagedObject, ItemHistory {
 
     @NSManaged var reviewCount: NSNumber?
     @NSManaged var reviewAverage: NSNumber?
     @NSManaged var timestamp: NSDate
-    @NSManaged var readFlg: Bool
     
     @NSManaged var item: Item?
 
-    var comparableHistory: NSNumber? {
+    var comparableData: NSNumber? {
+        
         return reviewAverage
     }
 
@@ -35,7 +35,6 @@ class ReviewHistory: NSManagedObject {
         reviewCount = count
         reviewAverage = average
         timestamp = NSDate()
-        readFlg = false
     }
 
     static func fetchStoredHistoryForItem(item: Item, context: NSManagedObjectContext) -> [ReviewHistory] {
@@ -51,7 +50,25 @@ class ReviewHistory: NSManagedObject {
             return [ReviewHistory]()
         }
     }
+
+    func makeDisplayData(previous: ReviewHistory?) -> ItemDisplay {
+
+        return ReviewDisplay(history: self, previous: previous)
+    }
 }
 
+struct ReviewDisplay: ItemDisplay {
 
+    let data: String
+    let reviewBarRelativeLength: Double
+    let time: String
+    let direction: ChangeDirection
 
+    init(history: ReviewHistory, previous: ReviewHistory?) {
+
+        self.data = Formatter.getDisplayReviewCount(history.reviewCount)
+        self.reviewBarRelativeLength = Formatter.getRelativeLength(history.reviewAverage)
+        self.time = Formatter.getDisplayDate(history.timestamp)
+        self.direction = Formatter.getChangeDirection(history, previous: previous)
+    }
+}

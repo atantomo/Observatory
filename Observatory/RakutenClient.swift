@@ -8,13 +8,13 @@
 
 import Foundation
 
-internal enum Result<T> {
+enum Result<T> {
 
     case Success(T)
     case Error(ErrorType)
 }
 
-internal enum HttpStatusCode {
+enum HttpStatusCode {
 
     case Success
     case BadRequest
@@ -44,9 +44,16 @@ final class RakutenClient: NSObject {
 
     enum ClientError: ErrorType {
 
-        case Data
-        case Connectivity
+        case EmptyResult
+        case DataProcessing
+        case NetworkConnectivity
         case StatusCode(HttpStatusCode)
+    }
+
+    enum InputError: ErrorType {
+
+        case Invalid
+        case MissingParameter
     }
 
     enum Api {
@@ -89,21 +96,30 @@ final class RakutenClient: NSObject {
 
     static func generateErrorMessage(error: ErrorType) -> String? {
 
-        guard let err = error as? ClientError else {
-            return nil
+        if let err = error as? ClientError {
+
+            switch err {
+            case .NetworkConnectivity:
+                return "Network connection could not be established"
+            case .DataProcessing:
+                return "There was an error in processing data"
+            case .StatusCode:
+                return "Request returned an error response"
+            case .EmptyResult:
+                return "Could not find any matching item. Please try another keyword or category"
+            }
         }
 
-        switch err {
+        if let err = error as? InputError {
 
-        case .Connectivity:
-            return "Connection could not be established"
-
-        case .Data:
-            return "Error in processing data"
-
-        case .StatusCode:
-            return "Request returned an error response"
+            switch err {
+            case .Invalid:
+                return "Please input a keyword more than 1 character long"
+            case .MissingParameter:
+                return "Please input either a keyword or category"
+            }
         }
+        return nil
     }
 
     func taskForGETMethod(api: Api, params: [String: AnyObject], completionHandler: (Result<NSDictionary>) -> ()) -> NSURLSessionDataTask {
@@ -120,7 +136,6 @@ final class RakutenClient: NSObject {
         let urlString = Constants.Rakuten.BaseUrlSecure + apiBasePath + escapedParameters(params)
 
         let url = NSURL(string: urlString)!
-        print(url)
 
         let request = NSMutableURLRequest(URL: url)
         request.HTTPMethod = "GET"
@@ -139,7 +154,7 @@ final class RakutenClient: NSObject {
             } catch {
 
                 print("Failed parsing JSON data")
-                completionHandler(.Error(ClientError.Data))
+                completionHandler(.Error(ClientError.DataProcessing))
                 return
             }
 
@@ -175,14 +190,14 @@ final class RakutenClient: NSObject {
         guard error == nil else {
 
             print("Request returned an error: \(error)")
-            completionHandler(.Error(ClientError.Connectivity))
+            completionHandler(.Error(ClientError.NetworkConnectivity))
             return false
         }
 
         guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode else {
 
             print("Status code is nil")
-            completionHandler(.Error(ClientError.Data))
+            completionHandler(.Error(ClientError.DataProcessing))
             return false
         }
 
@@ -197,7 +212,7 @@ final class RakutenClient: NSObject {
         guard data != nil else {
 
             print("Request returned no data")
-            completionHandler(.Error(ClientError.Data))
+            completionHandler(.Error(ClientError.DataProcessing))
             return false
         }
 
