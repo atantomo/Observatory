@@ -480,7 +480,7 @@
                                 </constraints>
                             </scrollView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gO1-wZ-9kG">
-                                <rect key="frame" x="8" y="20" width="31" height="31"/>
+                                <rect key="frame" x="8" y="28" width="31" height="31"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="31" id="cgP-Qf-eQI"/>
                                     <constraint firstAttribute="height" constant="31" id="yJ6-vr-2iE"/>
@@ -504,7 +504,7 @@
                             <constraint firstAttribute="trailing" secondItem="TXs-KD-E7e" secondAttribute="trailing" id="c9a-Ln-96K"/>
                             <constraint firstItem="tfN-un-PkI" firstAttribute="top" secondItem="TXs-KD-E7e" secondAttribute="bottom" id="cal-FR-ooO"/>
                             <constraint firstItem="TXs-KD-E7e" firstAttribute="leading" secondItem="CK5-fy-okN" secondAttribute="leading" id="l5J-31-d42"/>
-                            <constraint firstItem="gO1-wZ-9kG" firstAttribute="top" secondItem="0co-CI-JBj" secondAttribute="bottom" id="rdv-Da-zxV"/>
+                            <constraint firstItem="gO1-wZ-9kG" firstAttribute="top" secondItem="0co-CI-JBj" secondAttribute="bottom" constant="8" id="rdv-Da-zxV"/>
                             <constraint firstItem="h6j-VV-uLP" firstAttribute="leading" secondItem="CK5-fy-okN" secondAttribute="leading" id="tvv-Ne-0ea"/>
                             <constraint firstItem="wp3-Wi-YVh" firstAttribute="top" secondItem="CK5-fy-okN" secondAttribute="top" id="vzQ-dw-alF"/>
                         </constraints>
