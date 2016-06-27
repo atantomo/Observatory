@@ -61,7 +61,7 @@ class GridCollectionViewLayout: UICollectionViewFlowLayout {
 
         rects = dictionary
     }
-    
+
     override func layoutAttributesForElementsInRect(rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
 
         var attributes = super.layoutAttributesForElementsInRect(rect)!
