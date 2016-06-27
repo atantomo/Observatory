@@ -35,7 +35,7 @@ class CategoryInputViewController: UITableViewController {
         categoryTableView.dataSource = self
 
         let loaderView = LoaderView(frame: view.frame)
-        view.addSubview(loaderView)
+        navigationController?.view.addSubview(loaderView)
 
         RakutenClient.sharedInstance().getCategory { result in
 
